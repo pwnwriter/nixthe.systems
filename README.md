@@ -1,13 +1,24 @@
-# nixthe.systems
+### Development
 
-To install dependencies:
+#### Dependencies
+
+```bash
+nix develop
+```
+
+or 
+
+```bash
+direnv allow
+```
+
+### Website
+
 
 ```bash
 bun install
 ```
 
-To run:
-
 ```bash
-bun run index.ts
+bun run dev
 ```

@@ -1,0 +1,20 @@
+{
+  "repositories": [
+    {
+      "link": "https://github.com/pwnwriter/nix",
+      "template": false,
+      "tags": [
+        "darwin",
+        "home-manager"
+      ]
+    },
+    {
+      "link": "https://github.com/juspay/nixos-unified-template",
+      "template": true,
+      "tags": [
+        "nix-darwin",
+        "home-manager"
+      ]
+    }
+  ]
+}

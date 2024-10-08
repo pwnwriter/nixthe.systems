@@ -1,0 +1,101 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Support Nix The Systems"
+  description="Help us keep Nix The Systems running by supporting our project."
+>
+  <div class="donation-container">
+    <h1>Support Nix The Systems</h1>
+    <p>
+      Nix The Systems is a platform dedicated to sharing Nix configurations, documentation, and resources to help the community. Your contributions help us maintain and improve the website, allowing us to provide better resources for everyone.
+    </p>
+    
+    <h2>Ways to Donate</h2>
+    
+    <div class="donation-options">
+      <div class="donation-option border border-border rounded-lg p-4 bg-card">
+        <h3 class="text-accent">Ko-fi</h3>
+        <p>
+          Support us on Ko-fi! Your donations help us cover operational costs and improve our content.
+        </p>
+        <a href="https://ko-fi.com/NixTheSystems" target="_blank" rel="noopener noreferrer">
+          <button class="donate-button">Donate with Ko-fi</button>
+        </a>
+      </div>
+      
+      <div class="donation-option border border-border rounded-lg p-4 bg-card">
+        <h3 class="text-accent">PayPal</h3>
+        <p>
+          Prefer to use PayPal? Your generosity is greatly appreciated and goes directly to our development efforts.
+        </p>
+        <a href="https://paypal.me/NixTheSystems" target="_blank" rel="noopener noreferrer">
+          <button class="donate-button">Donate with PayPal</button>
+        </a>
+      </div>
+      
+      <div class="donation-option border border-border rounded-lg p-4 bg-card">
+        <h3 class="text-accent">GitHub Sponsors</h3>
+        <p>
+          If you're a GitHub user, consider becoming a sponsor. Your support helps us maintain our project and grow the community.
+        </p>
+        <a href="https://github.com/sponsors/NixTheSystems" target="_blank" rel="noopener noreferrer">
+          <button class="donate-button">Donate on GitHub</button>
+        </a>
+      </div>
+    </div>
+    
+    <h2>Exclusive Offer for Supporters</h2>
+    <p>
+      Every supporter will receive their own subdomain on our platform! This is our way of thanking you for your generous contributions. You'll have a dedicated space to showcase your Nix configurations or projects. 
+    </p>
+
+    <h2>Thank You!</h2>
+    <p>
+      Your support means the world to us. Together, we can make Nix The Systems a better place for everyone. Thank you for considering a donation!
+    </p>
+  </div>
+  
+  <style>
+    .donation-container {
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+      text-align: center;
+      background: hsl(var(--background));
+      border-radius: var(--radius);
+    }
+
+    .donation-options {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .donation-option {
+      transition: background-color 0.3s;
+    }
+
+    .donation-option:hover {
+      background: hsl(var(--muted));
+    }
+
+    .donate-button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: var(--radius);
+      background-color: hsl(var(--primary));
+      color: hsl(var(--primary-foreground));
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+
+    .donate-button:hover {
+      background-color: hsl(var(--primary-foreground));
+      color: hsl(var(--primary));
+    }
+  </style>
+</BaseLayout>

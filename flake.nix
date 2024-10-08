@@ -22,6 +22,8 @@
         default = pkgs.mkShell {
           packages = with pkgs; [
             bun
+            nodejs
+            pnpm
             nodePackages.typescript-language-server
           ];
 
