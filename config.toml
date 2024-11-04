@@ -35,6 +35,7 @@ show_repo = true
 
 links = [
   { url = "@/docs/_index.md", name = "Docs" },
+  { url = "@/configurations/index.md", name = "Configurations" },
   { url = "@/about/index.md", name = "About" }
 ]
 

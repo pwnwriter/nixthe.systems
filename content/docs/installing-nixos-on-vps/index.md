@@ -9,7 +9,7 @@ tags = ["installation", "nixos"]
 
 <!-- TODO: Make this blog more good enough -->
 
-<!-- <img alt="Nix Pill" src="/images/nix-hetzner/nix-pills.png" style="width: 15rem;"/> -->
+<img alt="Nix Pill" src="nix-pills.png" style="width: 15rem;"/>
 
 In this guide, we’ll walk you through the process of installing NixOS on a
 Virtual Private Server (VPS). 
@@ -325,6 +325,6 @@ Well, it's this for now, I'll see you in the next one!
 [nixos-anywhere]: https://github.com/nix-community/nixos-anywhere
 [disko]: https://github.com/nix-community/disko
 [Kexec]: https://wiki.archlinux.org/title/kexec
-[nix-pass]: /images/nix-hetzner/nix.png
-[nix-install]: /images/nix-hetzner/nix.png
-[nix-final]: /images/nix-hetzner/final.png
+[nix-pass]: nix.png
+[nix-install]: nix.png
+[nix-final]: final.png
