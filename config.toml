@@ -1,7 +1,7 @@
 base_url = "https://nixthe.systems"
 
 title = "Nix The Systems"
-description = "Thunder Network blog."
+description = "Nix The Systems blog"
 
 theme = "duckquill"
 
