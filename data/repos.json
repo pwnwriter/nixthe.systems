@@ -1,0 +1,15 @@
+[
+    {
+        "name": "Repo1",
+        "url": "https://github.com/user/repo1",
+        "description": "This is the first repository.",
+        "language": "Python"
+    },
+    {
+        "name": "Repo2",
+        "url": "https://github.com/user/repo2",
+        "description": "This is the second repository.",
+        "language": "JavaScript"
+    }
+]
+
