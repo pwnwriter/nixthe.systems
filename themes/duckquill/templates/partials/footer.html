@@ -45,7 +45,9 @@
 		</p>
 	{%- endif %}
 
+	{%- if config.extra.footer.show_last_commit %}
 	<p id="latest-commit"><em>Last commit:</em> <span id="commit-message"></span></p>
+	{%- endif %}
 
 	{%- if config.extra.footer.socials %}
 		<ul id="socials">
