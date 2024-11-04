@@ -1,9 +1,5 @@
 +++
-title = "Introduction"
-description = "Welcome to the Nix The Systems."
-date = 2024-10-02
-[taxonomies]
-tags = ["welcome", "blog"]
+title = "Nix The Systems"
 +++
 
 ### Welcome, everyone!
