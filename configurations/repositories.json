@@ -1,0 +1,11 @@
+[
+    {
+        "name": "nix",
+        "url": "https://github.com/pwnwriter/nix"
+    },
+    {
+        "name": "einstein.nixos",
+        "url": "https://gitlab.com/scientiac/einstein.nixos"
+    }
+]
+
