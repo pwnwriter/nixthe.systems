@@ -6,4 +6,4 @@ template = "article_list.html"
 paginate_by = 25
 +++
 
-This is Nix The system's blog index. Here, you’ll find all the latest updates, insights, and announcements about **Nix The Systems**.
+This is Nix The system's blog index. Here, you’ll find all the latest updates, insights, documentations and announcements about **Nix The Systems**.

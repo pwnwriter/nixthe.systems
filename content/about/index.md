@@ -18,6 +18,11 @@ We welcome and appreciate any donations to support this project. Your contributi
 
 In gratitude, we will provide you with a subdomain, similar to [**pwnwriter.nixthe.systems**](https://pwnwriter.nixthe.systems). Thank you for your support!
 
+
+### Reach out
+
+Feel free to dm me at [x.com/pwnwriter](https://x.com/pwnwriter) or mail at ***pwnwriter@nixthe.systems***.
+
 <a href="https://ko-fi.com/pwnwriter" target="_blank">
     <img src="https://img.shields.io/badge/Ko--fi-Support%20Me%20%F0%9F%92%96-FF5E5B?style=flat-square&logo=ko-fi" alt="Support me on Ko-fi" width="250"/>
 </a>
