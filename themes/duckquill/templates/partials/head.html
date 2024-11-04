@@ -1,0 +1,121 @@
+<head>
+	<!-- {{ now() | date(format='%F %a %R') }} -->
+	<meta charset="UTF-8" />
+	<meta name="description" content="{{ config.description }}" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="theme-color" content="{{ config.extra.accent_color | default(value='#9a9996') | safe }}" />
+	{%- if config.extra.accent_color_dark %}
+		<meta name="theme-color" content="{{ config.extra.accent_color_dark | safe }}" media="(prefers-color-scheme:dark)" />
+	{%- endif %}
+	<title>{% include "partials/title.html" %}</title>
+	<link rel="canonical" href="{{ current_url | default(value='/') | safe }}" />
+
+	{%- if config.markdown.highlight_code and config.markdown.highlight_theme == "css" %}
+		{%- if config.markdown.highlight_themes_css | length > 0 %}
+			<link type="text/css" rel="stylesheet" href="{{ get_url(path='syntax-theme-light.css') }}" media="(prefers-color-scheme: light)" />
+			<link type="text/css" rel="stylesheet" href="{{ get_url(path='syntax-theme-dark.css') }}" media="(prefers-color-scheme: dark)" />
+		{%- else %}
+			<link type="text/css" rel="stylesheet" href="{{ get_url(path='syntax-theme.css') }}" />
+		{%- endif %}
+	{%- endif %}
+
+	{%- if config.extra.comments %}
+		<link rel="me" href="https://{{ config.extra.comments.host }}/@{{ config.extra.comments.user }}" />
+	{%- endif %}
+
+	{%- include "partials/favicon.html" %}
+
+	{%- if config.generate_feeds and config.feed_filenames %}
+		{%- for feed in config.feed_filenames %}
+			<link rel="alternate" type={% if feed == "atom.xml" %}"application/atom+xml"{% else %}"application/rss+xml"{% endif %} title="{{ config.title }}" href="{{ get_url(path=feed) | safe }}" />
+		{%- endfor %}
+	{%- elif config.generate_feeds and config.feed_filenames | length > 0 %}
+		<link rel="alternate" type={% if config.feed_filenames[0] == "atom.xml" %}"application/atom+xml"{% else %}"application/rss+xml"{% endif %} title="{{ config.title }}" href="{{ get_url(path=config.feed_filenames[0]) | safe }}" />
+	{%- endif %}
+
+	{%- include "partials/variables.html" %}
+
+	{%- set styles = [ "style.css" ] %}
+
+	{%- if config.extra.bundled_fonts %}
+		{%- set styles = styles | concat(with=["fonts.css"]) %}
+	{%- endif %}
+
+	{%- if config.extra.katex %}
+		{%- set styles = styles | concat(with=["katex.css"]) %}
+	{%- endif %}
+
+	{%- if config.extra.styles %}
+		{%- set styles = styles | concat(with=config.extra.styles) %}
+	{%- endif %}
+
+	{%- if page.extra.styles %}
+		{%- set styles = styles | concat(with=page.extra.styles) %}
+	{%- elif section.extra.styles %}
+		{%- set styles = styles | concat(with=section.extra.styles) %}
+	{%- endif %}
+
+	{%- for style in styles %}
+		<link type="text/css" rel="stylesheet" href="{{ get_url(path=style) | safe }}" />
+	{%- endfor %}
+
+	{%- if config.extra.show_copy_button %}
+		{%- include "partials/copy_button.html" %}
+	{%- endif %}
+
+	{%- set scripts = [] %}
+
+	{%- if config.extra.goatcounter %}
+		{%- set scripts = scripts | concat(with=["count.js"]) %}
+	{%- endif %}
+
+	{%- if config.extra.katex %}
+		{%- set scripts = scripts | concat(with=["katex.min.js", "auto-render.min.js"]) %}
+		<script>
+			document.addEventListener("DOMContentLoaded", function () {
+				renderMathInElement(document.body, {
+					delimiters: [
+						{ left: "$$", right: "$$", display: true },
+						{ left: "$", right: "$", display: false },
+					],
+				});
+			});
+		</script>
+	{%- endif %}
+
+	{%- if config.build_search_index %}
+		{%- include "partials/search.html" %}
+		{%- set scripts = scripts | concat(with=["elasticlunr.min.js"]) %}
+	{%- endif %}
+
+	{%- if config.extra.nav.show_theme_switcher %}
+		{%- set scripts = scripts | concat(with=["theme-switcher.js"]) %}
+	{%- endif %}
+
+	{%- if config.extra.nav.links.menu or config.languages | length > 0 or config.extra.nav.show_theme_switcher or config.feed_filenames | length > 1 and config.extra.nav.show_feed %}
+		{%- set scripts = scripts | concat(with=["details.js"]) %}
+	{%- endif %}
+
+	{%- if config.extra.scripts %}
+		{%- set scripts = scripts | concat(with=config.extra.scripts) %}
+	{%- endif %}
+
+	{%- if page.extra.scripts %}
+		{%- set scripts = scripts | concat(with=page.extra.scripts) %}
+	{%- elif section.extra.scripts %}
+		{%- set scripts = scripts | concat(with=section.extra.scripts) %}
+	{%- endif %}
+
+	{%- if scripts | length > 0 %}
+		{%- for script in scripts %}
+			<script type="text/javascript" {% if script == "count.js" %}data-goatcounter="https://{{ config.extra.goatcounter.user }}.{{ config.extra.goatcounter.host | default(value='goatcounter.com') }}/count"{% endif %} src="{{ get_url(path=script) | safe }}"></script>
+		{%- endfor %}
+	{%- endif %}
+
+	<meta property="og:site_name" content="{{ config.title }}" />
+	<meta property="og:title" content="{% include 'partials/title.html' %}" />
+	<meta property="og:url" content="{{ current_url | default(value='/') | safe }}" />
+	<meta property="og:description" content="{% include 'partials/description.html' %}" />
+	<meta property="og:image" content="{% include 'partials/card.html' %}" />
+	<meta property="og:locale" content="{{ macros_translate::translate(key='date_locale', default='en_US', language_strings=language_strings) }}" />
+</head>

@@ -1,0 +1,12 @@
+<video class="
+		{% if full %}full{% endif %}
+		{% if full_bleed %}full-bleed{% endif %}
+		{% if start %}start{% endif %}
+		{% if end %}end{% endif %}
+		{% if pixels %}pixels{% endif %}
+		{% if transparent %}transparent{% endif %}
+		{% if spoiler %}spoiler{% endif %}
+		{% if spoiler and solid %}solid{% endif %}
+	"
+	{%- if alt -%}aria-title="{{ alt }}"{%- endif -%}
+	controls src="{{ url }}"></video>

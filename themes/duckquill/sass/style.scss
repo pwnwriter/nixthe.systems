@@ -1,0 +1,36 @@
+/*!
+ * Duckquill v5.1.0 (https://duckquill.daudix.one)
+ * Copyright 2024 David "Daudix" Lapshin
+ * Licensed under MIT (https://codeberg.org/daudix/duckquill/src/branch/main/LICENSE)
+ */
+
+@use "normalize";
+
+@use "variables";
+
+@use "alerts";
+@use "article-list";
+@use "article";
+@use "buttons";
+@use "code";
+@use "comments";
+@use "crt";
+@use "external";
+@use "footer";
+@use "footnotes-list";
+@use "general";
+@use "hidden";
+@use "icon";
+@use "iframe";
+@use "input";
+@use "media";
+@use "nav";
+@use "not-found";
+@use "post-nav";
+@use "pre-container";
+@use "spoiler";
+@use "statements";
+@use "table";
+@use "tags";
+@use "typography";
+@use "zola-anchor";

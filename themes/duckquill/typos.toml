@@ -1,0 +1,2 @@
+[files]
+extend-exclude = ["static/*.js", "i18n/ms.toml"]

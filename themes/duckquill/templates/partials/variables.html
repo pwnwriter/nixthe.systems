@@ -1,0 +1,73 @@
+<style type="text/css">
+	:root {
+		{%- if page.extra.accent_color -%}
+			--accent-color: {{ page.extra.accent_color | safe }};
+		{%- elif section.extra.accent_color -%}
+			--accent-color: {{ section.extra.accent_color | safe }};
+		{%- else -%}
+			--accent-color: {{ config.extra.accent_color | default(value="#6f8396") | safe }};
+		{%- endif -%}
+
+		{%- if page.extra.fix_contrast -%}
+			--contrast-color: rgb(0 0 0 / 0.8);
+		{%- elif section.extra.fix_contrast -%}
+			--contrast-color: rgb(0 0 0 / 0.8);
+		{%- elif config.extra.fix_contrast -%}
+			--contrast-color: rgb(0 0 0 / 0.8);
+		{%- else -%}
+			--contrast-color: #fff;
+		{%- endif -%}
+	}
+
+	{%- if page.extra.accent_color_dark -%}
+		[data-theme="dark"] {
+			--accent-color: {{ page.extra.accent_color_dark | safe }};
+		}
+
+		@media (prefers-color-scheme: dark) {
+			:root:not([data-theme="light"]) {
+				--accent-color: {{ page.extra.accent_color_dark | safe }};
+			}
+		}
+	{%- elif section.extra.accent_color_dark -%}
+		[data-theme="dark"] {
+			--accent-color: {{ section.extra.accent_color_dark | safe }};
+		}
+
+		@media (prefers-color-scheme: dark) {
+			:root:not([data-theme="light"]) {
+				--accent-color: {{ section.extra.accent_color_dark | safe }};
+			}
+		}
+	{%- elif config.extra.accent_color_dark -%}
+		[data-theme="dark"] {
+			--accent-color: {{ config.extra.accent_color_dark | safe }};
+		}
+
+		@media (prefers-color-scheme: dark) {
+			:root:not([data-theme="light"]) {
+				--accent-color: {{ config.extra.accent_color_dark | safe }};
+			}
+		}
+	{%- endif -%}
+
+	{%- if page.extra.fix_contrast_dark or section.extra.fix_contrast_dark or config.extra.fix_contrast_dark -%}
+		[data-theme="dark"] {
+			--contrast-color: rgb(0 0 0 / 0.8);
+		}
+
+		@media (prefers-color-scheme: dark) {
+			:root:not([data-theme="light"]) {
+				--contrast-color: rgb(0 0 0 / 0.8);
+			}
+		}
+	{%- endif -%}
+
+	{%- if page.extra.debug_layout or section.extra.debug_layout or config.extra.debug_layout -%}
+		*,
+		*::before,
+		*::after {
+			outline: solid 1px var(--accent-color);
+		}
+	{%- endif -%}
+</style>

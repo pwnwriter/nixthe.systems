@@ -1,0 +1,15 @@
+a.external::after {
+	display: inline-block;
+	opacity: var(--dim-opacity);
+	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' %3E%3Cpath d='m6 6 5-5M7 1h4v4M4 2H3a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h5a2 2 0 0 0 2-2V8' style='fill:none;stroke:black;stroke-linejoin:round;stroke-linecap:round;stroke-width:2;stroke-dasharray:none'/%3E%3C/svg%3E");
+	mask-size: cover;
+	margin-inline-start: 0.25rem;
+	background-color: currentColor;
+	width: max(0.75rem, 0.75em);
+	height: max(0.75rem, 0.75em);
+	content: "";
+
+	:root[dir*="rtl"] & {
+		transform: scaleX(-1);
+	}
+}

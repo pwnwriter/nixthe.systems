@@ -1,0 +1,24 @@
+iframe {
+	margin: 1rem auto;
+	box-shadow: var(--edge-highlight), var(--shadow);
+	border: none;
+	border-radius: var(--rounded-corner);
+	background-color: var(--fg-muted-1);
+	width: 100%;
+	max-width: 100%;
+
+	&.youtube-embed,
+	&.vimeo-embed {
+		aspect-ratio: 16 / 9;
+	}
+
+	&:fullscreen {
+		box-shadow: none;
+		border-radius: 0;
+	}
+
+	&:-webkit-full-screen {
+		box-shadow: none;
+		border-radius: 0;
+	}
+}

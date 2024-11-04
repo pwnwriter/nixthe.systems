@@ -1,0 +1,34 @@
+{% import "macros/translate.html" as macros_translate %}
+
+{%- set language_strings = load_data(path="i18n/" ~ lang ~ '.toml', required=false) -%}
+{%- if not language_strings -%}
+    {%- set language_strings = load_data(path="themes/duckquill/i18n/" ~ lang ~ ".toml", required=false) -%}
+{%- endif -%}
+
+<blockquote class="
+	{% if note %}note{% endif %}
+	{% if tip %}tip{% endif %}
+	{% if important %}important{% endif %}
+	{% if warning %}warning{% endif %}
+	{% if caution %}caution{% endif %}
+">
+	<p class="alert-title">
+		<i class="icon"></i>
+		{%- if note -%}
+			{{ macros_translate::translate(key="note", default="Note", language_strings=language_strings) }}
+		{%- endif -%}
+		{%- if tip -%}
+			{{ macros_translate::translate(key="tip", default="Tip", language_strings=language_strings) }}
+		{%- endif -%}
+		{%- if important -%}
+			{{ macros_translate::translate(key="important", default="Important", language_strings=language_strings) }}
+		{%- endif -%}
+		{%- if warning -%}
+			{{ macros_translate::translate(key="warning", default="Warning", language_strings=language_strings) }}
+		{%- endif -%}
+		{%- if caution -%}
+			{{ macros_translate::translate(key="caution", default="Caution", language_strings=language_strings) }}
+		{%- endif -%}
+	</p>
+	{{ body | markdown | safe }}
+</blockquote>

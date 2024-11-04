@@ -1,0 +1,381 @@
+{#- Taken from https://carlschwan.eu/2020/12/29/adding-comments-to-your-static-blog-with-mastodon/ -#}
+{#- Attachment code taken from https://github.com/cassidyjames/cassidyjames.github.io/blob/99782788a7e3ba3cc52d6803010873abd1b02b9e/_includes/comments.html#L251-L296 -#}
+
+{%- set rel_attributes = macros_rel_attributes::rel_attributes() | trim -%}
+
+{%- if page.extra.comments.host -%}
+	{%- set host = page.extra.comments.host -%}
+{%- else -%}
+	{%- set host = config.extra.comments.host -%}
+{%- endif -%}
+
+{%- if page.extra.comments.user -%}
+	{%- set username = page.extra.comments.user -%}
+{%- else %}
+	{%- set username = config.extra.comments.user -%}
+{%- endif -%}
+
+{%- set id = page.extra.comments.id -%}
+{%- set date_locale = macros_translate::translate(key="date_locale", default="en-US", language_strings=language_strings) | replace(from="_", to="-") -%}
+
+<section id="comments">
+	{%- if config.extra.comments.show_qr -%}
+		<img
+			id="qrcode"
+			class="pixels no-hover"
+			title="{{ macros_translate::translate(key='comments_qr', default='QR code to a Mastodon post', language_strings=language_strings) }}"
+			{%- if config.markdown.lazy_async_image -%}
+				decoding="async"
+				loading="lazy"
+			{%- endif -%}
+			src="https://api.qrserver.com/v1/create-qr-code/?data=https://{{ host }}/@{{ username }}/{{ id }}"
+		/>
+	{%- endif -%}
+	<h2>{{ macros_translate::translate(key="comments", default="Comments", language_strings=language_strings) }}</h2>
+	<p>{{ macros_translate::translate(key="comments_description", default="You can comment on this blog post by publicly replying to this post using a Mastodon or other ActivityPub/Fediverse account. Known non-private replies are displayed below.", language_strings=language_strings) }}</p>
+	<div class="dialog-buttons">
+		<button id="load-comments" class="inline-button" onclick="loadComments()">
+			{{- macros_translate::translate(key="load_comments", default="Load Comments", language_strings=language_strings) -}}
+		</button>
+		<a class="inline-button colored external" href="https://{{ host }}/@{{ username }}/{{ id }}" rel="{{ rel_attributes }}">
+			{{- macros_translate::translate(key="open_post", default="Open Post", language_strings=language_strings) -}}
+		</a>
+	</div>
+	<div id="comments-wrapper">
+		<noscript>
+			<p>{{ macros_translate::translate(key="comments_noscript", default="Loading comments relies on JavaScript. Try enabling JavaScript and reloading, or visit the original post on Mastodon.", language_strings=language_strings) }}</p>
+		</noscript>
+	</div>
+	<script type="text/javascript">
+		function escapeHtml(unsafe) {
+			return unsafe
+				.replace(/&/g, "&amp;")
+				.replace(/</g, "&lt;")
+				.replace(/>/g, "&gt;")
+				.replace(/"/g, "&quot;")
+				.replace(/'/g, "&#039;");
+		}
+		function emojify(input, emojis) {
+			let output = input;
+
+			emojis.forEach((emoji) => {
+				let picture = document.createElement("picture");
+
+				let source = document.createElement("source");
+				source.setAttribute("srcset", escapeHtml(emoji.url));
+				source.setAttribute("media", "(prefers-reduced-motion: no-preference)");
+
+				let img = document.createElement("img");
+				img.className = "emoji";
+				img.setAttribute("src", escapeHtml(emoji.static_url));
+				img.setAttribute("alt", `:${emoji.shortcode}:`);
+				img.setAttribute("title", `:${emoji.shortcode}:`);
+				{%- if config.markdown.lazy_async_image -%}
+					img.setAttribute("decoding", "async");
+					img.setAttribute("loading", "lazy");
+				{%- endif -%}
+
+				picture.appendChild(source);
+				picture.appendChild(img);
+
+				output = output.replace(`:${emoji.shortcode}:`, picture.outerHTML);
+			});
+
+			return output;
+		}
+
+		function loadComments() {
+			let commentsWrapper = document.getElementById("comments-wrapper");
+			commentsWrapper.innerHTML = "";
+
+			let loadCommentsButton = document.getElementById("load-comments");
+			loadCommentsButton.innerHTML = "{{ macros_translate::translate(key='loading', default='Loading', language_strings=language_strings) }}…";
+			loadCommentsButton.disabled = true;
+
+			fetch("https://{{ host }}/api/v1/statuses/{{ id }}/context")
+				.then(function (response) {
+					return response.json();
+				})
+				.then(function (data) {
+					let descendants = data["descendants"];
+					if (
+						descendants &&
+						Array.isArray(descendants) &&
+						descendants.length > 0
+					) {
+						commentsWrapper.innerHTML = "";
+
+						descendants.forEach(function (status) {
+							console.log(descendants);
+							if (status.account.display_name.length > 0) {
+								status.account.display_name = escapeHtml(
+									status.account.display_name
+								);
+								status.account.display_name = emojify(
+									status.account.display_name,
+									status.account.emojis
+								);
+							} else {
+								status.account.display_name = status.account.username;
+							}
+
+							let instance = "";
+							if (status.account.acct.includes("@")) {
+								instance = status.account.acct.split("@")[1];
+							} else {
+								instance = "{{ host }}";
+							}
+
+							const isReply = status.in_reply_to_id !== "{{ id }}";
+
+							let op = false;
+							if (status.account.acct == "{{ username }}") {
+								op = true;
+							}
+
+							status.content = emojify(status.content, status.emojis);
+
+							let avatarSource = document.createElement("source");
+							avatarSource.setAttribute(
+								"srcset",
+								escapeHtml(status.account.avatar)
+							);
+							avatarSource.setAttribute(
+								"media",
+								"(prefers-reduced-motion: no-preference)"
+							);
+
+							let avatarImg = document.createElement("img");
+							avatarImg.className = "avatar";
+							avatarImg.setAttribute(
+								"src",
+								escapeHtml(status.account.avatar_static)
+							);
+							avatarImg.setAttribute(
+								"alt",
+								`@${status.account.username}@${instance} avatar`
+							);
+							{%- if config.markdown.lazy_async_image -%}
+								avatarImg.setAttribute("decoding", "async");
+								avatarImg.setAttribute("loading", "lazy");
+							{%- endif -%}
+
+							let avatarPicture = document.createElement("picture");
+							avatarPicture.appendChild(avatarSource);
+							avatarPicture.appendChild(avatarImg);
+
+							let avatar = document.createElement("a");
+							avatar.className = "avatar-link";
+							avatar.setAttribute("href", status.account.url);
+							avatar.setAttribute("rel", "{{ rel_attributes }}");
+							avatar.setAttribute(
+								"title",
+								`{{ macros_translate::translate(key="view_profile", default="View Profile At", language_strings=language_strings) }} @${status.account.username}@${instance}`
+							);
+							avatar.appendChild(avatarPicture);
+
+							let instanceBadge = document.createElement("a");
+							instanceBadge.className = "instance";
+							instanceBadge.setAttribute("href", status.account.url);
+							instanceBadge.setAttribute(
+								"title",
+								`@${status.account.username}@${instance}`
+							);
+							instanceBadge.setAttribute("rel", "{{ rel_attributes }}");
+							instanceBadge.textContent = instance;
+
+							let display = document.createElement("span");
+							display.className = "display";
+							display.setAttribute("itemprop", "author");
+							display.setAttribute("itemtype", "http://schema.org/Person");
+							display.innerHTML = status.account.display_name;
+
+							let header = document.createElement("header");
+							header.className = "author";
+							header.appendChild(display);
+							header.appendChild(instanceBadge);
+
+							let permalink = document.createElement("a");
+							permalink.setAttribute("href", status.url);
+							permalink.setAttribute("itemprop", "url");
+							permalink.setAttribute("title", `{{ macros_translate::translate(key="view_comment", default="View Comment At", language_strings=language_strings) }} ${instance}`);
+							permalink.setAttribute("rel", "{{ rel_attributes }}");
+							permalink.textContent = new Date(
+								status.created_at
+							).toLocaleString("{{ date_locale }}", {
+								dateStyle: "long",
+								timeStyle: "short",
+							});
+
+							let timestamp = document.createElement("time");
+							timestamp.setAttribute("datetime", status.created_at);
+							timestamp.appendChild(permalink);
+							permalink.classList.add("external");
+
+							let main = document.createElement("main");
+							main.setAttribute("itemprop", "text");
+							main.innerHTML = status.content;
+
+							let attachments = status.media_attachments;
+							let SUPPORTED_MEDIA = ["image", "video", "gifv", "audio"];
+							let media = document.createElement("div");
+							media.className = "attachments";
+							if (
+								attachments &&
+								Array.isArray(attachments) &&
+								attachments.length > 0
+							) {
+								attachments.forEach((attachment) => {
+									if (SUPPORTED_MEDIA.includes(attachment.type)) {
+
+										let mediaElement;
+										switch (attachment.type) {
+											case "image":
+												mediaElement = document.createElement("img");
+												mediaElement.setAttribute("src", attachment.preview_url);
+
+												if (attachment.description != null) {
+													mediaElement.setAttribute("alt", attachment.description);
+													mediaElement.setAttribute("title", attachment.description);
+												}
+
+												{%- if config.markdown.lazy_async_image -%}
+													mediaElement.setAttribute("decoding", "async");
+													mediaElement.setAttribute("loading", "lazy");
+												{%- endif -%}
+
+												media.appendChild(mediaElement);
+												break;
+
+											case "video":
+												mediaElement = document.createElement("video");
+												mediaElement.setAttribute("src", attachment.url);
+												mediaElement.setAttribute("controls", "");
+
+												if (attachment.description != null) {
+													mediaElement.setAttribute("aria-title", attachment.description);
+													mediaElement.setAttribute("title", attachment.description);
+												}
+
+												media.appendChild(mediaElement);
+												break;
+
+											case "gifv":
+												mediaElement = document.createElement("video");
+												mediaElement.setAttribute("src", attachment.url);
+												mediaElement.setAttribute("autoplay", "");
+												mediaElement.setAttribute("playsinline", "");
+												mediaElement.setAttribute("loop", "");
+
+												if (attachment.description != null) {
+													mediaElement.setAttribute("aria-title", attachment.description);
+													mediaElement.setAttribute("title", attachment.description);
+												}
+
+												media.appendChild(mediaElement);
+												break;
+
+											case "audio":
+												mediaElement = document.createElement("audio");
+												mediaElement.setAttribute("src", attachment.url);
+												mediaElement.setAttribute("controls", "");
+
+												if (attachment.description != null) {
+													mediaElement.setAttribute("aria-title", attachment.description);
+													mediaElement.setAttribute("title", attachment.description);
+												}
+
+												media.appendChild(mediaElement);
+												break;
+										}
+
+										let mediaLink = document.createElement("a");
+										mediaLink.setAttribute("href", attachment.url);
+										mediaLink.setAttribute("rel", "{{ rel_attributes }}");
+										mediaLink.appendChild(mediaElement);
+								
+										media.appendChild(mediaLink);
+									}
+								});
+							}
+
+							let interactions = document.createElement("footer");
+
+							let boosts = document.createElement("a");
+							boosts.className = "boosts";
+							boosts.setAttribute("href", `${status.url}/reblogs`);
+							boosts.setAttribute("title", `{{ macros_translate::translate(key="boosts_from", default="Boosts from", language_strings=language_strings) }} ${instance}`);
+
+							let boostsIcon = document.createElement("i");
+							boostsIcon.className = "icon";
+							boosts.appendChild(boostsIcon);
+							boosts.insertAdjacentHTML('beforeend', ` ${status.reblogs_count}`);
+							interactions.appendChild(boosts);
+
+							let faves = document.createElement("a");
+							faves.className = "faves";
+							faves.setAttribute("href", `${status.url}/favourites`);
+							faves.setAttribute("title", `{{ macros_translate::translate(key="faves_from", default="Favorites from", language_strings=language_strings) }} ${instance}`);
+
+							let favesIcon = document.createElement("i");
+							favesIcon.className = "icon";
+							faves.appendChild(favesIcon);
+							faves.insertAdjacentHTML('beforeend', ` ${status.favourites_count}`);
+							interactions.appendChild(faves);
+
+							let comment = document.createElement("article");
+							comment.id = `comment-${status.id}`;
+							comment.className = isReply ? "comment comment-reply" : "comment";
+							comment.setAttribute("itemprop", "comment");
+							comment.setAttribute("itemtype", "http://schema.org/Comment");
+							comment.appendChild(avatar);
+							comment.appendChild(header);
+							comment.appendChild(timestamp);
+							comment.appendChild(main);
+							if (
+								attachments &&
+								Array.isArray(attachments) &&
+								attachments.length > 0
+							) {
+								comment.appendChild(media);
+							}
+							comment.appendChild(interactions);
+
+							if (op === true) {
+								comment.classList.add("op");
+
+								avatar.classList.add("op");
+								avatar.setAttribute(
+									"title",
+									"{{ macros_translate::translate(key='blog_post_author', default='Blog post author', language_strings=language_strings) }}: " + avatar.getAttribute("title")
+								);
+
+								instanceBadge.classList.add("op");
+								instanceBadge.setAttribute(
+									"title",
+									"{{ macros_translate::translate(key='blog_post_author', default='Blog post author', language_strings=language_strings) }}: " + instanceBadge.getAttribute("title")
+								);
+							}
+
+							commentsWrapper.innerHTML += comment.outerHTML;
+						});
+					}
+
+					else {
+						var statusText = document.createElement("p");
+						statusText.innerHTML = "{{ macros_translate::translate(key='no_comments', default='No Comments yet :/', language_strings=language_strings) }}";
+						statusText.setAttribute("id", "comments-status");
+						commentsWrapper.appendChild(statusText);
+					}
+
+					loadCommentsButton.innerHTML = "{{ macros_translate::translate(key='reload', default='Reload', language_strings=language_strings) }}";
+				})
+				.catch(function (error) {
+					console.error('Error loading comments:', error);
+				})
+				.finally(function () {
+					loadCommentsButton.disabled = false;
+				});
+		}
+	</script>
+</section>

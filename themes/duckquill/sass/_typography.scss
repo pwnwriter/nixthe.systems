@@ -1,0 +1,292 @@
+// HEADINGS
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	text-wrap: balance;
+	margin: 2rem 0 1rem;
+	font-weight: lighter;
+	line-height: 1;
+	font-family: var(--font-antique);
+	letter-spacing: -0.05em;
+}
+
+h1 {
+	font-size: var(--font-size-xxx-large);
+}
+
+h2 {
+	font-size: var(--font-size-xx-large);
+}
+
+h3 {
+	font-size: var(--font-size-x-large);
+}
+
+h4 {
+	font-size: var(--font-size-large);
+}
+
+h5 {
+	font-size: var(--font-size-medium);
+}
+
+h6 {
+	font-size: var(--font-size-small);
+}
+
+small {
+	color: var(--fg-muted-5);
+	font-size: var(--font-size-small-em);
+}
+
+abbr[title] {
+	cursor: help;
+	text-decoration: underline;
+	text-decoration-style: dotted;
+	text-decoration-thickness: max(1px, 0.0625em);
+}
+
+figcaption {
+	color: var(--fg-muted-4);
+	font-size: var(--font-size-small-em);
+	text-align: center;
+}
+
+blockquote {
+	margin: 0;
+	border-radius: 0.25rem;
+	border-inline-start: 0.25rem solid var(--accent-color);
+	padding: 0 0.75rem;
+	color: var(--fg-muted-5);
+}
+
+mark,
+del,
+ins,
+samp,
+q {
+	box-shadow: var(--edge-highlight);
+	border-radius: var(--rounded-corner-small);
+	padding: 0.125rem 0.375rem;
+}
+
+mark {
+	background-color: var(--accent-color-alpha);
+	color: var(--accent-color);
+}
+
+del {
+	background-color: var(--red-bg);
+	color: var(--red-fg);
+	text-decoration: line-through;
+	text-decoration-thickness: max(1px, 0.0625em);
+}
+
+ins {
+	background-color: var(--green-bg);
+	color: var(--green-fg);
+	text-decoration: underline;
+	text-decoration-thickness: max(1px, 0.0625em);
+}
+
+samp {
+	background-color: var(--fg-muted-1);
+	color: var(--fg-muted-5);
+	font-size: var(--font-size-small-em);
+}
+
+q {
+	background-color: var(--fg-muted-1);
+	color: var(--fg-muted-5);
+	font-style: italic;
+}
+
+u {
+	text-decoration: underline;
+	text-decoration-style: wavy;
+	text-decoration-color: var(--red-fg);
+	text-decoration-thickness: max(1px, 0.0625em);
+}
+
+progress {
+	appearance: none;
+	box-shadow: var(--edge-highlight);
+	border: none;
+	border-radius: 999px;
+	background-color: var(--fg-muted-1);
+	width: 100%;
+	height: 0.5rem;
+	color: var(--accent-color);
+
+	&:indeterminate {
+		background-color: var(--fg-muted-1);
+	}
+
+	&:indeterminate::-moz-progress-bar {
+		background-color: transparent;
+	}
+
+	&::-webkit-progress-bar {
+		background-color: transparent;
+	}
+
+	&::-moz-progress-bar {
+		border-radius: 999px;
+		background-color: var(--accent-color);
+	}
+
+	&::-webkit-progress-value {
+		border-radius: 999px;
+		background-color: var(--accent-color);
+	}
+}
+
+kbd {
+	display: inline-block;
+	transition: var(--transition);
+	cursor: pointer;
+	box-shadow: var(--edge-highlight), inset 0 -0.125rem 0 var(--fg-muted-2);
+	border-radius: var(--rounded-corner-small);
+	background-color: var(--fg-muted-1);
+	padding: 0.125rem 0.375rem;
+	font-size: var(--font-size-small-em);
+
+	// Small nice thingy, keys can be pressed!
+	&:active {
+		transform: translateY(0.125rem);
+		box-shadow: inset 0 0.0625rem 0 var(--fg-muted-2);
+		background-color: var(--fg-muted-2);
+	}
+}
+
+a {
+	color: var(--accent-color);
+	font-weight: bold;
+	text-decoration-thickness: max(1px, 0.0625em);
+
+	&:hover {
+		text-decoration-style: wavy;
+	}
+}
+
+hr {
+	margin: 2rem auto;
+	border: none;
+	border-block-start: 0.1875rem double var(--fg-muted-2);
+	overflow: visible;
+	text-align: center;
+
+	&::after {
+		position: relative;
+		inset-block-start: -1.75rem;
+		content: "☙❧";
+		color: var(--fg-muted-4);
+		font-size: var(--font-size-xx-large);
+
+		// An ugly hack to fix mirroring in rtl
+		:root[dir*="rtl"] & {
+			content: "❧☙";
+		}
+	}
+}
+
+dt {
+	font-weight: bold;
+}
+
+dd {
+	margin-inline-start: 1.5rem;
+	margin-block-end: 1rem;
+}
+
+aside {
+	float: right;
+	margin-inline-start: 1rem;
+	box-shadow: var(--edge-highlight);
+	border-radius: var(--rounded-corner);
+	background-color: var(--accent-color-alpha);
+	padding: 1rem;
+	width: 30%;
+
+	:root[dir*="rtl"] & {
+		float: left;
+	}
+
+	@media only screen and (max-width: 720px) {
+		float: none;
+		margin-inline-start: 0;
+		width: 100%;
+	}
+}
+
+details {
+	box-shadow: var(--edge-highlight);
+	border-radius: var(--rounded-corner);
+	background-color: var(--fg-muted-1);
+	padding: 0.875rem 1rem;
+
+	summary {
+		cursor: pointer;
+		list-style: none;
+
+		&::marker,
+		&::-webkit-details-marker {
+			display: none;
+		}
+
+		&::before {
+			display: inline-block;
+			vertical-align: -0.125em;
+			mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='m2.293 6.707 5 5a1 1 0 0 0 1.414 0l5-5a1 1 0 1 0-1.414-1.414L8 9.586 3.707 5.293a1 1 0 1 0-1.414 1.414m0 0'/%3E%3C/svg%3E");
+			transition: var(--transition);
+			margin-inline-end: 0.25rem;
+			background-color: currentColor;
+			width: 1rem;
+			height: 1rem;
+			content: "";
+		}
+	}
+
+	:last-child {
+		margin-block-end: 0;
+	}
+
+	&[open] summary {
+		&::before {
+			transform: scaleY(-1);
+		}
+
+		& ~ * {
+			animation: details-open var(--transition);
+
+			@keyframes details-open {
+				from {
+					transform: translateY(-1rem);
+					opacity: 0;
+				}
+			}
+		}
+	}
+}
+
+figure {
+	margin-inline: 0;
+}
+
+ol,
+ul {
+	padding-inline-start: 1.5rem;
+}
+
+li {
+	margin: 0.125rem 0;
+	padding-inline-start: 0.25rem;
+
+	&::marker {
+		color: var(--accent-color);
+		font-weight: bold;
+	}
+}

@@ -1,0 +1,136 @@
+@mixin theme-variables {
+	:root {
+		@content("light");
+	}
+
+	[data-theme="dark"] {
+		@content("dark");
+	}
+
+	@media (prefers-color-scheme: dark) {
+		:root:not([data-theme="light"]) {
+			@content("dark");
+		}
+	}
+}
+
+@include theme-variables using ($theme) {
+	@if $theme =="dark" {
+		// COLORS
+		--bg-color: color-mix(in srgb, var(--accent-color) 10%, black);
+		--fg-color: rgb(255 255 255);
+		--fg-muted-1: rgb(255 255 255 / 0.05);
+		--fg-muted-2: rgb(255 255 255 / 0.1);
+		--fg-muted-3: rgb(255 255 255 / 0.2);
+		--fg-muted-4: rgb(255 255 255 / 0.5);
+		--fg-muted-5: rgb(255 255 255 / 0.6);
+		--fg-contrast: rgb(0 0 0 / 0.8);
+		--nav-bg: rgb(25 25 25 / 0.7);
+		--blue-fg: rgb(153 193 241);
+		--brown-fg: rgb(205 171 143);
+		--green-fg: rgb(143 240 164);
+		--purple-fg: rgb(220 138 221);
+		--red-fg: rgb(246 97 81);
+		--yellow-fg: rgb(248 228 92);
+
+		// FILTERS
+		--blurnail-blur: brightness(0.25) blur(1rem);
+
+		color-scheme: dark;
+	}
+
+	@else {
+		// COLORS
+		--bg-color: color-mix(in srgb, var(--accent-color) 20%, white);
+		--blue-bg: rgb(from var(--blue-fg) r g b / var(--color-opacity));
+		--blue-fg: rgb(53 132 228);
+		--brown-bg: rgb(from var(--brown-fg) r g b / var(--color-opacity));
+		--brown-fg: rgb(99 69 44);
+		--fg-color: rgb(0 0 0 / 0.8);
+		--fg-contrast: rgb(255 255 255);
+		--fg-muted-1: rgb(0 0 0 / 0.05);
+		--fg-muted-2: rgb(0 0 0 / 0.1);
+		--fg-muted-3: rgb(0 0 0 / 0.2);
+		--fg-muted-4: rgb(0 0 0 / 0.5);
+		--fg-muted-5: rgb(0 0 0 / 0.6);
+		--green-bg: rgb(from var(--green-fg) r g b / var(--color-opacity));
+		--green-fg: rgb(38 162 105);
+		--nav-bg: rgb(242 242 242 / 0.7);
+		--accent-color-alpha: rgb(from var(--accent-color) r g b / var(--color-opacity));
+		--purple-bg: rgb(from var(--purple-fg) r g b / var(--color-opacity));
+		--purple-fg: rgb(145 65 172);
+		--red-bg: rgb(from var(--red-fg) r g b / var(--color-opacity));
+		--red-fg: rgb(224 27 36);
+		--yellow-bg: rgb(from var(--yellow-fg) r g b / var(--color-opacity));
+		--yellow-fg: rgb(156 110 3);
+
+		// CONTAINERS
+		--container-width: 720px;
+
+		// CORNERS
+		--rounded-corner: 0.75rem;
+		--rounded-corner-small: 0.5rem;
+
+		// FILTERS
+		--blur: saturate(1.8) blur(0.75rem);
+		--blurnail-blur: contrast(0.25) brightness(1.75) blur(1rem);
+
+		// FONT SIZES
+		--font-size-xx-small: 0.625rem;
+		--font-size-x-small: 0.75rem;
+		--font-size-small: 0.875rem;
+		--font-size-medium: 1rem;
+		--font-size-large: 1.25rem;
+		--font-size-x-large: 1.5rem;
+		--font-size-xx-large: 2rem;
+		--font-size-xxx-large: 3rem;
+
+		// FONT SIZES (RELATIVE)
+		--font-size-xx-small-em: 0.625em;
+		--font-size-x-small-em: 0.75em;
+		--font-size-small-em: 0.875em;
+		--font-size-medium-em: 1em;
+		--font-size-large-em: 1.25em;
+		--font-size-x-large-em: 1.5em;
+		--font-size-xx-large-em: 2em;
+		--font-size-xxx-large-em: 3em;
+
+		// FONTS
+		--font-system-ui: system-ui, sans-serif;
+		--font-transitional: Charter, "Bitstream Charter", "Sitka Text", Cambria, serif;
+		--font-old-style: "Iowan Old Style", "Palatino Linotype", "URW Palladio L", P052, serif;
+		--font-humanist: Seravek, "Gill Sans Nova", Ubuntu, Calibri, "DejaVu Sans", source-sans-pro, sans-serif;
+		--font-geometric-humanist: Avenir, Montserrat, Corbel, "URW Gothic", source-sans-pro, sans-serif;
+		--font-classical-humanist: Optima, Candara, "Noto Sans", source-sans-pro, sans-serif;
+		--font-neo-grotesque: Inter, Roboto, "Helvetica Neue", "Arial Nova", "Nimbus Sans", Arial, sans-serif;
+		--font-monospace-slab-serif: "Nimbus Mono PS", "Courier New", monospace;
+		--font-monospace-code: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+		--font-industrial: Bahnschrift, "DIN Alternate", "Franklin Gothic Medium", "Nimbus Sans Narrow", sans-serif-condensed, sans-serif;
+		--font-rounded-sans: ui-rounded, "Hiragino Maru Gothic ProN", Quicksand, Comfortaa, Manjari, "Arial Rounded MT", "Arial Rounded MT Bold", Calibri, source-sans-pro, sans-serif;
+		--font-slab-serif: Rockwell, "Rockwell Nova", "Roboto Slab", "DejaVu Serif", "Sitka Small", serif;
+		--font-antique: Superclarendon, "Bookman Old Style", "URW Bookman", "URW Bookman L", "Georgia Pro", Georgia, serif;
+		--font-didone: Didot, "Bodoni MT", "Noto Serif Display", "URW Palladio L", P052, Sylfaen, serif;
+		--font-handwritten: "Segoe Print", "Bradley Hand", Chilanka, TSCu_Comic, casual, cursive;
+		--font-emoji: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+		// OPACITY
+		--color-opacity: 0.1;
+		--dim-opacity: 0.8;
+		--disabled-opacity: 0.6;
+
+		// SHADOWS
+		--edge-highlight: inset 0 0.0625rem 0 rgb(255 255 255 / 0.1);
+		--shadow: 0 0 0 0.0625rem rgb(0 0 0 / 0.03), 0 0.0625rem 0.1875rem 0.0625rem rgb(0 0 0 / 0.07), 0 0.125rem 0.375rem 0.125rem rgb(0 0 0 / 0.03);
+		--shadow-raised: 0 0 0 0.0625rem rgb(0 0 0 / 0.06), 0 0.125rem 0.375rem 0.125rem rgb(0 0 0 / 0.14), 0 0.25rem 0.75rem 0.25rem rgb(0 0 0 / 0.06);
+		--shadow-glass: 0 0.75rem 1.5rem -1rem rgb(0 0 0 / 0.5);
+
+		// STATES
+		--hover: scale(1.1);
+		--active: scale(0.9);
+
+		// TRANSITIONS
+		--transition: 0.2s;
+		--transition-longer: 0.4s;
+		--transition-long: 0.8s;
+	}
+}

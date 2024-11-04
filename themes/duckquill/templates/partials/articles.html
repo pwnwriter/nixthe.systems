@@ -1,0 +1,130 @@
+{%- if paginator.pages -%}
+    {%- set pages = paginator.pages -%}
+{%- elif section.pages -%}
+    {%- set pages = section.pages -%}
+{%- else -%}
+    {%- set pages = term.pages -%}
+{%- endif -%}
+
+<div id="article-list">
+	{%- for page in pages %}
+		<article class="
+			{% if page.draft %}draft{% endif %}
+			{% if page.extra.archive %}archive{% endif %}
+			{% if page.extra.featured %}featured{% endif %}
+			{% if page.extra.hot %}hot{% endif %}
+			{% if page.extra.poor %}poor{% endif %}">
+			<div class="heading">
+				<h3><a href="{{ page.permalink | safe }}">{{ page.title }}</a></h3>
+				{%- if page.draft %}
+					<span class="draft-badge">
+						<i class="icon"></i>
+						{{- macros_translate::translate(key="drafted", default="Drafted", language_strings=language_strings) -}}
+					</span>
+				{%- endif -%}
+				{%- if page.extra.archive %}
+					<span class="archive-badge">
+						<i class="icon"></i>
+						{{- macros_translate::translate(key="archived", default="Archived", language_strings=language_strings) -}}
+					</span>
+				{%- endif %}
+				{%- if page.extra.featured %}
+					<span class="featured-badge">
+						<i class="icon"></i>
+						{{- macros_translate::translate(key="featured", default="Featured", language_strings=language_strings) -}}
+					</span>
+				{%- endif %}
+				{%- if page.extra.hot %}
+					<span class="hot-badge">
+						<i class="icon"></i>
+						{{- macros_translate::translate(key="hot", default="Hot", language_strings=language_strings) -}}
+					</span>
+				{%- endif %}
+				{%- if page.extra.poor %}
+					<span class="poor-badge">
+						<i class="icon"></i>
+						{{- macros_translate::translate(key="poor", default="Poor", language_strings=language_strings) -}}
+					</span>
+				{%- endif %}
+			</div>
+			{%- if page.description %}
+				{{ page.description | markdown | safe }}
+			{%- endif %}
+			{%- if page.date -%}
+				<div class="details">
+					<small>
+						<time datetime="{{ page.date | date(format='%+') }}" pubdate>
+							{{- page.date | date(format=date_format, locale=date_locale) -}}
+						</time>
+						{%- if page.authors -%}
+							<span> • {% include "partials/authors.html" -%}</span>
+						{%- endif -%}
+					</small>
+					{%- if page.taxonomies -%}
+						{%- for name, taxon in page.taxonomies %}
+							<small>
+								<ul class="tags">
+									{%-for item in taxon -%}
+										<li><a class="tag" href="{{ get_taxonomy_url(kind=name, name=item, lang=lang) }}">{{ item }}</a></li>
+									{%- endfor %}
+								</ul>
+							</small>
+						{%- endfor -%}
+					{%- endif %}
+					</small>
+				</div>
+			{%- endif -%}
+			{%- if page.extra.banner -%}
+				{%- set blurnail = resize_image(path=page.colocated_path ~ page.extra.banner, width=16, height=8, op="fill", format="webp") -%}
+				<div class="blurnail" style="--blurnail: url('{{ blurnail.url }}')"></div>
+			{%- endif -%}
+
+		</article>
+	{%- endfor %}
+</div>
+
+{%- if paginator.pages -%}
+	<nav id="paginator">
+		{%- if paginator.first != current_url -%}
+			<a id="paginator-first" href="{{ paginator.first }}" title="{{ macros_translate::translate(key='first', default='First', language_strings=language_strings) }}">
+				<i class="icon"></i>
+			</a>
+		{% else %}
+			<span id="paginator-first" title="{{ macros_translate::translate(key='first', default='First', language_strings=language_strings) }}">
+				<i class="icon"></i>
+			</span>
+		{%- endif -%}
+
+		{%- if paginator.previous -%}
+			<a id="paginator-previous" href="{{ paginator.previous }}" title="{{ macros_translate::translate(key='previous', default='Previous', language_strings=language_strings) }}">
+				<i class="icon"></i>
+			</a>
+		{% else %}
+			<span id="paginator-previous" title="{{ macros_translate::translate(key='previous', default='Previous', language_strings=language_strings) }}">
+				<i class="icon"></i>
+			</span>
+		{%- endif -%}
+
+		<span id="paginator-counter">{{ paginator.current_index }}/{{ paginator.number_pagers }}</span>
+
+		{%- if paginator.next -%}
+			<a id="paginator-next" href="{{ paginator.next }}" title="{{ macros_translate::translate(key='next', default='Next', language_strings=language_strings) }}">
+				<i class="icon"></i>
+			</a>
+		{%- else -%}
+			<span id="paginator-next" title="{{ macros_translate::translate(key='next', default='Next', language_strings=language_strings) }}">
+				<i class="icon"></i>
+			</span>
+		{%- endif -%}
+
+		{%- if paginator.last != current_url -%}
+			<a id="paginator-last" href="{{ paginator.last }}" title="{{ macros_translate::translate(key='last', default='Last', language_strings=language_strings) }}">
+				<i class="icon"></i>
+			</a>
+		{% else %}
+			<span id="paginator-last" title="{{ macros_translate::translate(key='last', default='Last', language_strings=language_strings) }}">
+				<i class="icon"></i>
+			</span>
+		{%- endif -%}
+	</nav>
+{%- endif -%}

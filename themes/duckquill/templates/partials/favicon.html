@@ -1,0 +1,28 @@
+<link rel="icon" type="image/png" href="
+{%- if page.extra.favicon -%}
+	{{ get_url(path=page.colocated_path ~ page.extra.favicon) }}
+{%- elif section.extra.favicon -%}
+	{{ get_url(path=section.colocated_path ~ section.extra.favicon) }}
+{%- else -%}
+    {{ get_url(path='favicon.png') }}
+{%- endif -%}" />
+
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="
+{%- if page.extra.apple_touch_icon -%}
+	{{ get_url(path=page.colocated_path ~ page.extra.apple_touch_icon) }}
+{%- elif section.extra.apple_touch_icon -%}
+    {{ get_url(path=section.colocated_path ~ section.extra.apple_touch_icon) }}
+{%- else -%}
+    {{ get_url(path='apple-touch-icon.png') }}
+{%- endif -%}" />
+
+{%- if page.extra.emoji_favicon or section.extra.emoji_favicon or config.extra.emoji_favicon %}
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='-.07em' y='.89em' font-size='90'%3E
+    {%- if page.extra.emoji_favicon -%}
+        {{ page.extra.emoji_favicon | truncate(length=1, end='') }}
+    {%- elif section.extra.emoji_favicon -%}
+        {{ section.extra.emoji_favicon | truncate(length=1, end='') }}
+    {%- else -%}
+        {{ config.extra.emoji_favicon | truncate(length=1, end='') }}
+    {%- endif -%}%3C/text%3E%3C/svg%3E">
+{%- endif %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+{%- set date_format = macros_translate::translate(key="date_format", default="%B %d, %Y", language_strings=language_strings) -%}
+{%- set date_locale = macros_translate::translate(key="date_locale", default="en_US", language_strings=language_strings) -%}
+<h1>{{ section.title }}</h1>
+
+{{ section.content | safe }}
+
+<p>
+	{%- if config.taxonomies | length > 0 -%}
+		<small>
+			<a href="{{ get_url(path='tags', lang=lang) }}">
+				{{ macros_translate::translate(key="filter_by_tag", default="Filter by tag", language_strings=language_strings) }}
+			</a>
+		</small>
+		<br />
+	{%- endif %}
+
+	<small>
+		{{ macros_translate::translate(key="newest_to_oldest", default="From newest to oldest", language_strings=language_strings) }} ↓
+	</small>
+</p>
+
+{% include "partials/articles.html" %}
+{% endblock content %}

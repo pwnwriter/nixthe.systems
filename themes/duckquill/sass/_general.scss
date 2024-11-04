@@ -1,0 +1,80 @@
+* {
+	box-sizing: border-box;
+}
+
+:root {
+	scroll-behavior: smooth;
+	scrollbar-color: var(--accent-color) transparent;
+	accent-color: var(--accent-color);
+
+	// Smaller font size on mobile
+	// @media only screen and (max-width: 480px) {
+	//     font-size: 14px;
+	// }
+}
+
+body {
+	text-wrap: pretty;
+	display: grid; // Put footer at the bottom for short pages, such as the 404
+	grid-template-rows: auto minmax(auto, 1fr) auto; // Header, stuff, footer
+	margin: 0;
+	background-color: var(--bg-color);
+	min-height: 100vh;
+	color: var(--fg-color);
+	line-height: 1.5;
+	font-family: var(--font-system-ui), var(--font-emoji);
+	overflow-wrap: break-word;
+}
+
+// Style text selection to use accent color
+::selection {
+	background-color: var(--accent-color);
+	color: var(--contrast-color);
+}
+
+// Make focused anchor not get covered by nav,
+// and flash it with accent color when jumping to it
+:target:not(#main) {
+	transition: all var(--transition), scroll-margin-block-start 0s;
+	scroll-margin-block-start: 15vh;
+	color: var(--accent-color);
+	text-shadow: var(--accent-color-alpha) 0 0 0.25rem, var(--accent-color) 0 0 0.75rem;
+}
+
+// Custom focus indicator
+:focus-visible {
+	animation: focus-in var(--transition);
+	outline: 0.125rem solid var(--accent-color);
+	outline-offset: 0.125rem;
+}
+
+// Fallback for older browsers
+@supports not selector(:focus-visible) {
+	:focus {
+		animation: focus-in var(--transition);
+		outline: 0.125rem solid var(--accent-color);
+		outline-offset: 0.125rem;
+	}
+}
+
+@keyframes focus-in {
+	from {
+		outline: 0.5rem solid transparent;
+		outline-offset: 0.25rem;
+	}
+}
+
+.container {
+	margin: 0 auto;
+	width: min(var(--container-width), 90%);
+}
+
+@media (prefers-reduced-motion) {
+
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0s !important;
+		transition-duration: 0s !important;
+	}
+}

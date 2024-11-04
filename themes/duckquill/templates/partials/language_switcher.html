@@ -1,0 +1,42 @@
+{#- Based on https://github.com/welpo/tabi/blob/main/templates/partials/language_switcher.html -#}
+
+<li id="language-switcher">
+    <details>
+        <summary class="circle" title="{{ macros_translate::translate(key='language', default='Language', language_strings=language_strings) }}">
+            <i class="icon"></i>
+        </summary>
+        <ul>
+            {%- for lcode, ldetails in config.languages -%}
+                {#- Skip the current language to avoid linking to the current page -#}
+                {%- if lang == lcode -%}
+                    {%- continue -%}
+                {%- endif -%}
+                {#- Dynamically load the language strings for each language -#}
+                {%- set other_language_strings = load_data(path="i18n/" ~ lcode ~ ".toml", required=false) -%}
+                {%- if not other_language_strings -%}
+                    {%- set other_language_strings = load_data(path="themes/duckquill/i18n/" ~ lcode ~ ".toml", required=false) -%}
+                {%- endif -%}
+                {#- Use the loaded language strings to get the language name -#}
+                {% set language_name = macros_translate::translate(key="language_name", default=lcode, language_strings=other_language_strings) %}
+                {#- Check if the language code matches the default language -#}
+                {%- if lcode == config.default_language -%}
+                    {#- If it does, link to the root path (no language code in URL) -#}
+                    <li>
+                        <a lang="{{ lcode }}" href="{{ current_url | replace(from='/' ~ lang ~ '/', to = '/') }}">{{ language_name }}</a>
+                    </li>
+                    {#- Check if the current language is the default language -#}
+                    {#- If it is, append the language code to the base URL -#}
+                {%- elif lang == config.default_language -%}
+                    <li>
+                        <a lang="{{ lcode }}" href="{{ config.base_url }}/{{ lcode }}{{ current_path | default(value="/") | safe }}">{{ language_name }}</a>
+                    </li>
+                {%- else -%}
+                    {#- If it's not, replace the current language code in the URL with the new one -#}
+                    <li>
+                        <a lang="{{ lcode }}" href="{{ current_url | replace(from='/' ~ lang ~ '/', to='/' ~ lcode ~ '/') }}">{{ language_name }}</a>
+                    </li>
+                {%- endif -%}
+            {%- endfor -%}
+        </ul>
+    </details>
+</li>

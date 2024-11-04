@@ -1,0 +1,10 @@
+name = "Duckquill"
+description = "Modern, pretty, and clean theme"
+license = "MIT"
+homepage = "https://codeberg.org/daudix/duckquill"
+min_version = "0.19.0"
+demo = "https://duckquill.daudix.one"
+
+[author]
+name = "David Lapshin"
+homepage = "https://daudix.one"
