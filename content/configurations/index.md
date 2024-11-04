@@ -1,5 +1,4 @@
 +++
-title = "Nix and NixOS configurations"
+title = "Configurations"
+template = "repo.html"
 +++
-
-A place to find nix and nixos configurations documentations on small things and more!

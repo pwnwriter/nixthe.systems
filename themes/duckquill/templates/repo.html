@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% set repositories = load_data(path="content/configurations/repositories.json") %}
+
+    <h1>Configurations</h1>
+
+    <div class="repo-cards">
+        {% if repositories %}
+            {% for repo in repositories %}
+                <div class="repo-card">
+                    <h2>{{ repo.name }}</h2>
+                    <a href="{{ repo.url }}" class="repo-link">View Repository</a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No repositories found.</p>
+        {% endif %}
+    </div>
+{% endblock content %}

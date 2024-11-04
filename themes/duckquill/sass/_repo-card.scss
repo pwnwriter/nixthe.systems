@@ -1,0 +1,39 @@
+$card-bg: #f9f9f9;
+$card-border: #ddd;
+$card-shadow: rgba(0, 0, 0, 0.1);
+$primary-color: #007bff;
+$primary-hover: #0056b3;
+
+.repo-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+
+    .repo-card {
+        background-color: $card-bg;
+        border: 1px solid $card-border;
+        border-radius: 8px;
+        padding: 16px;
+        width: calc(33.333% - 32px);
+        box-shadow: 0 2px 8px $card-shadow;
+        transition: box-shadow 0.3s;
+
+        &:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .repo-link {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 16px;
+            background-color: $primary-color;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+
+            &:hover {
+                background-color: $primary-hover;
+            }
+        }
+    }
+}
