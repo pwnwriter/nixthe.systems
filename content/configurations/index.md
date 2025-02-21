@@ -1,4 +1,4 @@
 +++
-title = "Configurations"
+title = "Nix configuration repositories"
 template = "repo.html"
 +++

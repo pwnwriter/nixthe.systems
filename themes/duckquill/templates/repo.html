@@ -1,20 +1,23 @@
 {% extends "base.html" %}
 
 {% block content %}
-    {% set repositories = load_data(path="content/configurations/repositories.json") %}
+<h1>{{ page.title }}</h1>
+{%- include "partials/statements.html" -%}
+{%- include "partials/toc.html" -%}
 
-    <h1>Configurations</h1>
+{% set repos = load_data(path="static/repos.json") %}
 
-    <div class="repo-cards">
-        {% if repositories %}
-            {% for repo in repositories %}
-                <div class="repo-card">
-                    <h2>{{ repo.name }}</h2>
-                    <a href="{{ repo.url }}" class="repo-link">View Repository</a>
-                </div>
-            {% endfor %}
-        {% else %}
-            <p>No repositories found.</p>
-        {% endif %}
+<div class="repo-list">
+    {% for repo in repos %}
+    <div class="repo-card">
+        <h3><a href="{{ repo.url }}" target="_blank">{{ repo.name }}</a></h3>
+        <p>{{ repo.description }}</p>
+        <p>⭐ {{ repo.stars }}</p>
     </div>
+    {% endfor %}
+</div>
+
+
+{{ page.content | safe }}
 {% endblock content %}
+

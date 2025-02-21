@@ -1,0 +1,20 @@
+[
+  {
+    "name": "nix",
+    "url": "https://github.com/pwnwriter/nix",
+    "stars": 100,
+    "description": "A powerful package manager for Linux and macOS."
+  },
+  {
+    "name": "einstein.nixos",
+    "url": "https://gitlab.com/scientiac/einstein.nixos",
+    "stars": 50,
+    "description": "A NixOS configuration with scientific tools."
+  },
+  {
+    "name": "einstein.nixos",
+    "url": "https://gitlab.com/scientiac/einstein.nixos",
+    "stars": 50,
+    "description": "A NixOS configuration with scientific tools."
+  }
+]

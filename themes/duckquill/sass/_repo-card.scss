@@ -1,39 +1,43 @@
-$card-bg: #f9f9f9;
-$card-border: #ddd;
-$card-shadow: rgba(0, 0, 0, 0.1);
-$primary-color: #007bff;
-$primary-hover: #0056b3;
-
-.repo-cards {
+.repo-list {
     display: flex;
     flex-wrap: wrap;
     gap: 16px;
+    justify-content: center;
+    padding: 20px;
+}
 
-    .repo-card {
-        background-color: $card-bg;
-        border: 1px solid $card-border;
-        border-radius: 8px;
-        padding: 16px;
-        width: calc(33.333% - 32px);
-        box-shadow: 0 2px 8px $card-shadow;
-        transition: box-shadow 0.3s;
+.repo-card {
+    border: 1px solid var(--fg-muted-2);
+    background: var(--bg-color);
+    color: var(--fg-color);
+    padding: 15px;
+    border-radius: var(--rounded-corner);
+    width: 320px;
+    transition: var(--transition);
+    box-shadow: var(--shadow-raised);
+}
 
-        &:hover {
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-        }
+.repo-card:hover {
+    transform: var(--hover);
+}
 
-        .repo-link {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 8px 16px;
-            background-color: $primary-color;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
+.repo-card h3 {
+    margin: 0 0 8px 0;
+    font-size: var(--font-size-large);
+}
 
-            &:hover {
-                background-color: $primary-hover;
-            }
-        }
-    }
+.repo-card a {
+    color: var(--blue-fg);  // Uses theme-defined link color
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.repo-card a:hover {
+    text-decoration: underline;
+}
+
+.repo-card .stars {
+    font-size: var(--font-size-small);
+    color: var(--yellow-fg);  // Highlights star count with theme yellow
+    font-weight: bold;
 }
