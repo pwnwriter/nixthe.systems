@@ -22,7 +22,7 @@ smart_punctuation = true
 index_format = "elasticlunr_json"
 
 [extra]
-accent_color = "#7b98e0"
+accent_color = "#c6a0f6"
 
 
 show_read_time = true
