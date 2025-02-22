@@ -1,7 +1,7 @@
 base_url = "https://nixthe.systems"
 
 title = "Nix The Systems"
-description = "Nix The Systems: A place to find nix and nixos configurations and more"
+description = "Nix The Systems: A place to find Nix, NixOS configurations and more"
 
 theme = "duckquill"
 
@@ -24,6 +24,8 @@ index_format = "elasticlunr_json"
 [extra]
 accent_color = "#c6a0f6"
 accent_color_dark = "#a5adcb"
+
+show_copy_button = true
 
 
 show_read_time = true
