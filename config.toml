@@ -23,6 +23,7 @@ index_format = "elasticlunr_json"
 
 [extra]
 accent_color = "#c6a0f6"
+accent_color_dark = "#a5adcb"
 
 
 show_read_time = true
