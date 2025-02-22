@@ -2,11 +2,11 @@
 title = "Nix The Systems"
 +++
 
-### Welcome, everyone!
+<img src="https://avatars.githubusercontent.com/u/90331517?v=4" align="right" width="144" alt="Avatar">
 
-Thank you for joining us today. I will be brief and get straight to the point about the purpose of this initiative and the inspiration behind it.
+### About
 
-I have a deep appreciation for **NIX** and use it daily whenever possible. My goal was to create a platform that consolidates various **NIX** configurations, offering inspiration and resources for building upon them. Noticing a gap in this area, I took the initiative to develop this project, and here we are.
+**Nix The Systems** is a place to find *Nix* configurations, from similar minded people who love to use nix. We also share guides on how to things here and there.
 
 ### What to Expect from Us
 
