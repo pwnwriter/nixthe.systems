@@ -3,120 +3,70 @@
     "name": "nixpack",
     "url": "https://github.com/example/nixpack",
     "stars": 120,
-    "description": "A modern package manager for NixOS."
+    "description": "A modern package manager for NixOS.",
+    "is_template": false
   },
   {
     "name": "flakegen",
     "url": "https://gitlab.com/devs/flakegen",
     "stars": 85,
-    "description": "A generator for Nix flakes."
+    "description": "A generator for Nix flakes.",
+    "is_template": true
   },
   {
     "name": "nixcraft",
     "url": "https://github.com/open-source/nixcraft",
     "stars": 200,
-    "description": "Advanced Nix expressions and configurations."
+    "description": "Advanced Nix expressions and configurations.",
+    "is_template": false
   },
   {
     "name": "nixos-docker",
     "url": "https://github.com/containers/nixos-docker",
     "stars": 140,
-    "description": "Docker images optimized for NixOS."
+    "description": "Docker images optimized for NixOS.",
+    "is_template": true
   },
   {
     "name": "nix-auto",
     "url": "https://gitlab.com/automation/nix-auto",
     "stars": 95,
-    "description": "Automated builds for Nix packages."
+    "description": "Automated builds for Nix packages.",
+    "is_template": false
   },
   {
     "name": "nix-repo",
     "url": "https://github.com/repos/nix-repo",
     "stars": 110,
-    "description": "A collection of community Nix packages."
+    "description": "A collection of community Nix packages.",
+    "is_template": true
   },
   {
     "name": "scientific-nix",
     "url": "https://gitlab.com/science/scientific-nix",
     "stars": 75,
-    "description": "NixOS tools for scientific computing."
+    "description": "NixOS tools for scientific computing.",
+    "is_template": false
   },
   {
     "name": "nix-machine",
     "url": "https://github.com/sysops/nix-machine",
     "stars": 130,
-    "description": "System management with Nix."
+    "description": "System management with Nix.",
+    "is_template": true
   },
   {
     "name": "flake-builder",
     "url": "https://gitlab.com/tools/flake-builder",
     "stars": 90,
-    "description": "A tool for creating and managing Nix flakes."
+    "description": "A tool for creating and managing Nix flakes.",
+    "is_template": false
   },
   {
     "name": "nix-ops",
     "url": "https://github.com/devops/nix-ops",
     "stars": 145,
-    "description": "NixOS deployment automation."
-  },
-  {
-    "name": "nixpack",
-    "url": "https://github.com/example/nixpack",
-    "stars": 120,
-    "description": "A modern package manager for NixOS."
-  },
-  {
-    "name": "flakegen",
-    "url": "https://gitlab.com/devs/flakegen",
-    "stars": 85,
-    "description": "A generator for Nix flakes."
-  },
-  {
-    "name": "nixcraft",
-    "url": "https://github.com/open-source/nixcraft",
-    "stars": 200,
-    "description": "Advanced Nix expressions and configurations."
-  },
-  {
-    "name": "nixos-docker",
-    "url": "https://github.com/containers/nixos-docker",
-    "stars": 140,
-    "description": "Docker images optimized for NixOS."
-  },
-  {
-    "name": "nix-auto",
-    "url": "https://gitlab.com/automation/nix-auto",
-    "stars": 95,
-    "description": "Automated builds for Nix packages."
-  },
-  {
-    "name": "nix-repo",
-    "url": "https://github.com/repos/nix-repo",
-    "stars": 110,
-    "description": "A collection of community Nix packages."
-  },
-  {
-    "name": "scientific-nix",
-    "url": "https://gitlab.com/science/scientific-nix",
-    "stars": 75,
-    "description": "NixOS tools for scientific computing."
-  },
-  {
-    "name": "nix-machine",
-    "url": "https://github.com/sysops/nix-machine",
-    "stars": 130,
-    "description": "System management with Nix."
-  },
-  {
-    "name": "flake-builder",
-    "url": "https://gitlab.com/tools/flake-builder",
-    "stars": 90,
-    "description": "A tool for creating and managing Nix flakes."
-  },
-  {
-    "name": "nix-ops",
-    "url": "https://github.com/devops/nix-ops",
-    "stars": 145,
-    "description": "NixOS deployment automation."
+    "description": "NixOS deployment automation.",
+    "is_template": true
   }
 ]
