@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"  lang="en" >
+<head>
+	<!-- 2025-03-06 Thu 11:55 -->
+	<meta charset="UTF-8" />
+	<meta name="description" content="Nix The Systems: A place to find Nix, NixOS configurations and more" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="theme-color" content="#c6a0f6" />
+		<meta name="theme-color" content="#a5adcb" media="(prefers-color-scheme:dark)" />
+	<title>Install NixOS on any VPS - Nix The Systems</title>
+	<link rel="canonical" href="https://nixthe.systems/docs/installing-nixos-on-vps/" /><link rel="icon" type="image/png" href="https://nixthe.systems/favicon.png" />
+
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="https://nixthe.systems/apple-touch-icon.png" />
+
+			<link rel="alternate" type="application/rss+xml" title="Nix The Systems" href="https://nixthe.systems/rss.xml" />
+			<link rel="alternate" type="application/atom+xml" title="Nix The Systems" href="https://nixthe.systems/atom.xml" /><style type="text/css">
+	:root {--accent-color: #c6a0f6;--contrast-color: #fff;}[data-theme="dark"] {
+			--accent-color: #a5adcb;
+		}
+
+		@media (prefers-color-scheme: dark) {
+			:root:not([data-theme="light"]) {
+				--accent-color: #a5adcb;
+			}
+		}</style>
+
+		<link type="text/css" rel="stylesheet" href="https://nixthe.systems/style.css" />
+
+<script type="text/javascript">
+	document.addEventListener("DOMContentLoaded", function () {
+		let blocks = document.querySelectorAll("pre[class^='language-']");
+
+		blocks.forEach((block) => {
+			if (navigator.clipboard) {
+				// Code block header title
+				let title = document.createElement("span");
+				let lang = block.getAttribute("data-lang");
+				title.innerHTML = lang;
+
+				// Copy button icon
+				let icon = document.createElement("i");
+				icon.classList.add("icon");
+
+				// Copy button
+				let button = document.createElement("button");
+				button.setAttribute("title", "Copy code")
+				button.appendChild(icon);
+
+				// Code block header
+				let header = document.createElement("div");
+				header.classList.add("header");
+				header.appendChild(button);
+				header.appendChild(title);
+
+				// Container that holds header and the code block itself
+				let container = document.createElement("div");
+				container.classList.add("pre-container");
+				container.appendChild(header);
+
+				// Move code block into the container
+				block.parentNode.insertBefore(container, block);
+				container.appendChild(block);
+
+				button.addEventListener("click", async () => {
+					await copyCode(block, header, button); // Pass the button here
+				});
+			}
+		});
+
+		async function copyCode(block, header, button) {
+			let code = block.querySelector("code");
+			let text = code.innerText;
+
+			await navigator.clipboard.writeText(text);
+
+			header.classList.add("active");
+			button.setAttribute("disabled", true);
+
+			header.addEventListener("animationend", () => {
+				header.classList.remove("active");
+				button.removeAttribute("disabled");
+			}, { once: true });
+		}
+	});
+</script>
+
+
+<script type="text/javascript">
+    function debounce(func, wait) {
+        var timeout;
+
+        return function () {
+            var context = this;
+            var args = arguments;
+            clearTimeout(timeout);
+
+            timeout = setTimeout(function () {
+                timeout = null;
+                func.apply(context, args);
+            }, wait);
+        };
+    }
+
+    // Taken from mdbook
+    // The strategy is as follows:
+    // First, assign a value to each word in the document:
+    //  Words that correspond to search terms (stemmer aware): 40
+    //  Normal words: 2
+    //  First word in a sentence: 8
+    // Then use a sliding window with a constant number of words and count the
+    // sum of the values of the words within the window. Then use the window that got the
+    // maximum sum. If there are multiple maximas, then get the last one.
+    // Enclose the terms in <b>.
+    function makeTeaser(body, terms) {
+        var TERM_WEIGHT = 40;
+        var NORMAL_WORD_WEIGHT = 2;
+        var FIRST_WORD_WEIGHT = 8;
+        var TEASER_MAX_WORDS = 30;
+
+        var stemmedTerms = terms.map(function (w) {
+            return elasticlunr.stemmer(w.toLowerCase());
+        });
+        var termFound = false;
+        var index = 0;
+        var weighted = []; // contains elements of ["word", weight, index_in_document]
+
+        // split in sentences, then words
+        var sentences = body.toLowerCase().split(". ");
+
+        for (var i in sentences) {
+            var words = sentences[i].split(" ");
+            var value = FIRST_WORD_WEIGHT;
+
+            for (var j in words) {
+                var word = words[j];
+
+                if (word.length > 0) {
+                    for (var k in stemmedTerms) {
+                        if (elasticlunr.stemmer(word).startsWith(stemmedTerms[k])) {
+                            value = TERM_WEIGHT;
+                            termFound = true;
+                        }
+                    }
+                    weighted.push([word, value, index]);
+                    value = NORMAL_WORD_WEIGHT;
+                }
+
+                index += word.length;
+                index += 1;  // ' ' or '.' if last word in sentence
+            }
+
+            index += 1;  // because we split at a two-char boundary '. '
+        }
+
+        if (weighted.length === 0) {
+            return body;
+        }
+
+        var windowWeights = [];
+        var windowSize = Math.min(weighted.length, TEASER_MAX_WORDS);
+        // We add a window with all the weights first
+        var curSum = 0;
+        for (var i = 0; i < windowSize; i++) {
+            curSum += weighted[i][1];
+        }
+        windowWeights.push(curSum);
+
+        for (var i = 0; i < weighted.length - windowSize; i++) {
+            curSum -= weighted[i][1];
+            curSum += weighted[i + windowSize][1];
+            windowWeights.push(curSum);
+        }
+
+        // If we didn't find the term, just pick the first window
+        var maxSumIndex = 0;
+        if (termFound) {
+            var maxFound = 0;
+            // backwards
+            for (var i = windowWeights.length - 1; i >= 0; i--) {
+                if (windowWeights[i] > maxFound) {
+                    maxFound = windowWeights[i];
+                    maxSumIndex = i;
+                }
+            }
+        }
+
+        var teaser = [];
+        var startIndex = weighted[maxSumIndex][2];
+        for (var i = maxSumIndex; i < maxSumIndex + windowSize; i++) {
+            var word = weighted[i];
+            if (startIndex < word[2]) {
+                // missing text from index to start of `word`
+                teaser.push(body.substring(startIndex, word[2]));
+                startIndex = word[2];
+            }
+
+            // add <strong> around search terms
+            if (word[1] === TERM_WEIGHT) {
+                teaser.push("<strong>");
+            }
+            startIndex = word[2] + word[0].length;
+            teaser.push(body.substring(word[2], startIndex));
+
+            if (word[1] === TERM_WEIGHT) {
+                teaser.push("</strong>");
+            }
+        }
+        teaser.push("…");
+        return teaser.join("");
+    }
+
+    function formatSearchResultItem(item, terms) {
+        return '<div class="item">'
+            + `<a href="${item.ref}">${item.doc.title}</a>`
+            + `<span>${makeTeaser(item.doc.body, terms)}</span>`
+            + '</div>';
+    }
+
+    function initSearch() {
+        var $searchInput = document.getElementById("search-bar");
+        var $searchResults = document.getElementById("search-results");
+        var MAX_ITEMS = 10;
+
+        var options = {
+            bool: "AND",
+            fields: {
+                title: { boost: 2 },
+                body: { boost: 1 },
+            }
+        };
+        var currentTerm = "";
+        var index;
+
+        var initIndex = async function () {
+            if (index === undefined) {
+                index = fetch("https://nixthe.systems/search_index.en.json")
+                    .then(
+                        async function (response) {
+                            return await elasticlunr.Index.load(await response.json());
+                        }
+                    );
+            }
+            let res = await index;
+            return res;
+        }
+
+        $searchInput.addEventListener("keyup", debounce(async function () {
+            var term = $searchInput.value.trim();
+            if (term === currentTerm) {
+                return;
+            }
+            $searchResults.style.display = term === "" ? "none" : "flex";
+            $searchResults.innerHTML = "";
+            currentTerm = term;
+            if (term === "") {
+                return;
+            }
+
+            var results = (await initIndex()).search(term, options);
+            if (results.length === 0) {
+                $searchResults.style.display = "none";
+                return;
+            }
+
+            for (var i = 0; i < Math.min(results.length, MAX_ITEMS); i++) {
+                $searchResults.innerHTML += formatSearchResultItem(results[i], term.split(" "));
+            }
+        }, 150));
+
+        window.addEventListener('click', function (e) {
+            if ($searchResults.style.display == "flex" && !$searchResults.contains(e.target)) {
+                $searchResults.style.display = "none";
+            }
+        });
+    }
+
+    function toggleSearch() {
+        var searchContainer = document.getElementById("search-container");
+        var searchBar = document.getElementById("search-bar");
+        searchContainer.classList.toggle("active");
+        searchBar.toggleAttribute("disabled");
+    }
+
+    if (document.readyState === "complete" ||
+        (document.readyState !== "loading" && !document.documentElement.doScroll)
+    ) {
+        initSearch();
+    } else {
+        document.addEventListener("DOMContentLoaded", initSearch);
+    }
+</script>
+
+			<script type="text/javascript"  src="https://nixthe.systems/elasticlunr.min.js"></script>
+			<script type="text/javascript"  src="https://nixthe.systems/theme-switcher.js"></script>
+			<script type="text/javascript"  src="https://nixthe.systems/details.js"></script>
+
+	<meta property="og:site_name" content="Nix The Systems" />
+	<meta property="og:title" content="Install NixOS on any VPS - Nix The Systems" />
+	<meta property="og:url" content="https://nixthe.systems/docs/installing-nixos-on-vps/" />
+	<meta property="og:description" content="Installing NixOS on any VPS using nixos-anywhere" />
+	<meta property="og:image" content="https://nixthe.systems/card.png" />
+	<meta property="og:locale" content="en_US" />
+</head>
+
+<body>
+
+		<header id="site-nav">
+	<nav>
+		<a href="#main" id="main-content" tabindex="0">
+			Skip to Main Content
+		</a>
+		<ul>
+			<li id="home">
+				<a href="https://nixthe.systems">
+					<i class="icon"></i>Nix The Systems</a>
+			</li>
+			<div class="divider"></div>
+					<li>
+						<a href="https://nixthe.systems/docs/">Docs</a>
+					</li>
+					<li>
+						<a href="https://nixthe.systems/configurations/">Configurations</a>
+					</li>
+					<li>
+						<a href="https://nixthe.systems/about/">About</a>
+					</li>
+				<li id="search">
+					<button class="circle" onclick="toggleSearch()" title="Search">
+						<i class="icon"></i>
+					</button>
+				</li>
+				<li id="theme-switcher">
+					<details>
+						<summary class="circle" title="Theme">
+							<i class="icon"></i>
+						</summary>
+						<ul>
+							<li>
+								<button class="circle" id="theme-light" onclick="switchTheme('light')" title="Switch to Light Theme">
+									<i class="icon"></i>
+								</button>
+							</li>
+							<li>
+								<button class="circle" id="theme-dark" onclick="switchTheme('dark')" title="Switch to Dark Theme">
+									<i class="icon"></i>
+								</button>
+							</li>
+							<li>
+								<button class="circle" id="theme-system" onclick="switchTheme('system')" title="Use System Theme">
+									<i class="icon"></i>
+								</button>
+							</li>
+						</ul>
+					</details>
+				</li><li id="feed">
+					<details>
+						<summary class="circle" title="Feed">
+							<i class="icon"></i>
+						</summary>
+						<ul>
+								<li>
+									<a href="https://nixthe.systems/rss.xml" rel="">RSS</a>
+								</li>
+								<li>
+									<a href="https://nixthe.systems/atom.xml" rel="">Atom</a>
+								</li></ul>
+					</details>
+				</li>
+		</ul>
+	</nav>
+		<div id="search-container">
+			<label for="search-bar" class="hidden">Search</label>
+			<input id="search-bar" placeholder="Search for…" autocomplete="off" type="search" disabled>
+			<div id="search-results-container">
+				<div id="search-results"></div>
+			</div>
+		</div>
+</header>
+
+	<div id="main" class="container">
+		
+		
+<h1>Install NixOS on any VPS</h1><!-- TODO: Make this blog more good enough -->
+<img alt="Nix Pill" src="nix-pills.png" style="width: 15rem;"/>
+<p>In this guide, we’ll walk you through the process of installing NixOS on a
+Virtual Private Server (VPS).</p>
+<p>While most VPS providers don’t offer Nix as a default OS installation option,
+there is a workaround using <a href="https://github.com/nix-community/nixos-anywhere">nixos-anywhere</a>. In this post, I’ll walk you
+through how to install NixOS on any VPS.</p>
+<blockquote>
+<p>PS: Example is a <code>hetzner</code> vps, already running an ubuntu iso.</p>
+</blockquote>
+<h2 id="how">How</h2>
+<p><a href="https://wiki.archlinux.org/title/kexec">Kexec</a> is a system call that allows you to load and boot into a new kernel
+directly from the currently running kernel. We will use it to boot into our
+minimal install system without needing a flash drive. Additionally,
+<a href="https://github.com/nix-community/nixos-anywhere">nixos-anywhere</a> allows us to automatically format and
+partition using <a href="https://github.com/nix-community/disko">disko</a> declaratively, and install the OS.</p>
+<p>Requirements:</p>
+<ul>
+<li>A nix(os) system</li>
+<li>Root access over the server</li>
+<li>1 gigs of RAM</li>
+<li>1 cores of cpu</li>
+</ul>
+<h2 id="configuration">Configuration</h2>
+<p>We’ll be using <code>flakes</code> to define our overall <code>nixos</code> config.</p>
+<p>The file tree structure should look like this below.</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">$</span><span> tree .
+</span><span>   </span><span style="color:#bf616a;">nixos-on-vps
+</span><span>   </span><span style="color:#bf616a;">├──</span><span> configuration.nix
+</span><span>   </span><span style="color:#bf616a;">├──</span><span> disk-config.nix
+</span><span>   </span><span style="color:#bf616a;">└──</span><span> flake.nix
+</span></code></pre>
+<ul>
+<li><code>flake.lock</code> is similar to <code>cargo.lock,</code> <code>package.json,</code> <code>lazy-lock.json</code> it locks the package git rev hash.</li>
+<li><code>configuration.nix</code> is used to define our configuration for the nixos.</li>
+<li><code>disk-config.nix</code> is to define our disko config</li>
+</ul>
+<p>The initial <code>flake.nix</code> skeleton look like this</p>
+<pre data-lang="nix" style="background-color:#2b303b;color:#c0c5ce;" class="language-nix "><code class="language-nix" data-lang="nix"><span>{
+</span><span>  </span><span style="color:#d08770;">inputs </span><span>= {
+</span><span>
+</span><span>  };
+</span><span>
+</span><span>  </span><span style="color:#d08770;">outputs </span><span>= </span><span style="color:#8fa1b3;">{ </span><span>... </span><span style="color:#8fa1b3;">}</span><span>: {
+</span><span>
+</span><span>  };
+</span><span>}
+</span><span>
+</span></code></pre>
+<p>Inside <code>flake.nix</code>, we’ll add our input repository url, <code>nixpkgs</code> and <code>disko</code>.</p>
+<pre data-lang="nix" style="background-color:#2b303b;color:#c0c5ce;" class="language-nix "><code class="language-nix" data-lang="nix"><span>{
+</span><span>  </span><span style="color:#d08770;">inputs </span><span>= {
+</span><span>    </span><span style="color:#d08770;">nixpkgs</span><span>.</span><span style="color:#d08770;">url </span><span>= &quot;</span><span style="color:#a3be8c;">github:nixos/nixpkgs/nixpkgs-unstable</span><span>&quot;;
+</span><span>    </span><span style="color:#d08770;">disko</span><span>.</span><span style="color:#d08770;">url </span><span>= &quot;</span><span style="color:#a3be8c;">github:nix-community/disko</span><span>&quot;;
+</span><span>    </span><span style="color:#d08770;">disko</span><span>.</span><span style="color:#d08770;">inputs</span><span>.</span><span style="color:#d08770;">nixpkgs</span><span>.</span><span style="color:#d08770;">follows </span><span>= &quot;</span><span style="color:#a3be8c;">nixpkgs</span><span>&quot;;
+</span><span>  };
+</span><span>
+</span><span>  </span><span style="color:#d08770;">outputs </span><span>= </span><span style="color:#8fa1b3;">{  </span><span>... </span><span style="color:#8fa1b3;">}</span><span>: {
+</span><span>
+</span><span>  };
+</span><span>}
+</span></code></pre>
+<p>and then we’ll define our output  servers. For this example, i’m using my
+server name as <code>wolf</code>, you can name yours anything.</p>
+<pre data-lang="nix" style="background-color:#2b303b;color:#c0c5ce;" class="language-nix "><code class="language-nix" data-lang="nix"><span>{
+</span><span>  </span><span style="color:#d08770;">inputs </span><span>= {
+</span><span>    </span><span style="color:#d08770;">nixpkgs</span><span>.</span><span style="color:#d08770;">url </span><span>= &quot;</span><span style="color:#a3be8c;">github:nixos/nixpkgs/nixpkgs-unstable</span><span>&quot;;
+</span><span>    </span><span style="color:#d08770;">disko</span><span>.</span><span style="color:#d08770;">url </span><span>= &quot;</span><span style="color:#a3be8c;">github:nix-community/disko</span><span>&quot;;
+</span><span>    </span><span style="color:#d08770;">disko</span><span>.</span><span style="color:#d08770;">inputs</span><span>.</span><span style="color:#d08770;">nixpkgs</span><span>.</span><span style="color:#d08770;">follows </span><span>= &quot;</span><span style="color:#a3be8c;">nixpkgs</span><span>&quot;;
+</span><span>  };
+</span><span>
+</span><span>  </span><span style="color:#d08770;">outputs </span><span>= </span><span style="color:#8fa1b3;">{ </span><span>nixpkgs, disko, ... </span><span style="color:#8fa1b3;">}</span><span>: {
+</span><span>    </span><span style="color:#d08770;">nixosConfigurations</span><span>.</span><span style="color:#d08770;">wolf </span><span>= </span><span style="color:#bf616a;">nixpkgs</span><span>.</span><span style="color:#bf616a;">lib</span><span>.</span><span style="color:#bf616a;">nixosSystem </span><span>{ </span><span style="color:#65737e;">#</span><span style="font-weight:bold;color:#ebcb8b;">FIXME</span><span style="color:#65737e;">: change server name
+</span><span>      </span><span style="color:#d08770;">system </span><span>= &quot;</span><span style="color:#a3be8c;">x86_64-linux</span><span>&quot;; </span><span style="color:#65737e;"># </span><span style="font-weight:bold;color:#ebcb8b;">FIXME</span><span style="color:#65737e;">: Change arch
+</span><span>      </span><span style="color:#d08770;">modules </span><span>= [
+</span><span>        </span><span style="color:#bf616a;">disko</span><span>.</span><span style="color:#bf616a;">nixosModules</span><span>.</span><span style="color:#bf616a;">disko
+</span><span>        </span><span style="color:#a3be8c;">./configuration.nix
+</span><span>      ];
+</span><span>    };
+</span><span>  };
+</span><span>}
+</span></code></pre>
+<blockquote>
+<p>My server is <code>x86_64-linux</code> you’ll want to change that accordingly.</p>
+</blockquote>
+<p>I’m using the default example <code>disk</code> config from <code>disko</code>. It’ll create <code>boot</code>
+and <code>root</code> partitions. I also recommend using the default unless you explicitly
+want to change. You’ll want to change the device name, to know run <code>$ lsblk </code></p>
+<ul>
+<li><code>disk-config.nix</code></li>
+</ul>
+<pre data-lang="nix" style="background-color:#2b303b;color:#c0c5ce;" class="language-nix "><code class="language-nix" data-lang="nix"><span style="color:#8fa1b3;">{ </span><span>lib, ... </span><span style="color:#8fa1b3;">}</span><span>:
+</span><span>{
+</span><span>  </span><span style="color:#d08770;">disko</span><span>.</span><span style="color:#d08770;">devices </span><span>= {
+</span><span>    </span><span style="color:#d08770;">disk</span><span>.</span><span style="color:#d08770;">disk1 </span><span>= {
+</span><span>      </span><span style="color:#d08770;">device </span><span>= </span><span style="color:#bf616a;">lib</span><span>.</span><span style="color:#bf616a;">mkDefault </span><span>&quot;</span><span style="color:#a3be8c;">/dev/sda</span><span>&quot;; </span><span style="color:#65737e;"># </span><span style="font-weight:bold;color:#ebcb8b;">FIXME</span><span style="color:#65737e;">: do lsblk  and change it to your&#39;s
+</span><span>      </span><span style="color:#d08770;">type </span><span>= &quot;</span><span style="color:#a3be8c;">disk</span><span>&quot;;
+</span><span>      </span><span style="color:#d08770;">content </span><span>= {
+</span><span>        </span><span style="color:#d08770;">type </span><span>= &quot;</span><span style="color:#a3be8c;">gpt</span><span>&quot;;
+</span><span>        </span><span style="color:#d08770;">partitions </span><span>= {
+</span><span>          </span><span style="color:#d08770;">boot </span><span>= {
+</span><span>            </span><span style="color:#d08770;">name </span><span>= &quot;</span><span style="color:#a3be8c;">boot</span><span>&quot;;
+</span><span>            </span><span style="color:#d08770;">size </span><span>= &quot;</span><span style="color:#a3be8c;">1M</span><span>&quot;;
+</span><span>            </span><span style="color:#d08770;">type </span><span>= &quot;</span><span style="color:#a3be8c;">EF02</span><span>&quot;;
+</span><span>          };
+</span><span>          </span><span style="color:#d08770;">esp </span><span>= {
+</span><span>            </span><span style="color:#d08770;">name </span><span>= &quot;</span><span style="color:#a3be8c;">ESP</span><span>&quot;;
+</span><span>            </span><span style="color:#d08770;">size </span><span>= &quot;</span><span style="color:#a3be8c;">500M</span><span>&quot;;
+</span><span>            </span><span style="color:#d08770;">type </span><span>= &quot;</span><span style="color:#a3be8c;">EF00</span><span>&quot;;
+</span><span>            </span><span style="color:#d08770;">content </span><span>= {
+</span><span>              </span><span style="color:#d08770;">type </span><span>= &quot;</span><span style="color:#a3be8c;">filesystem</span><span>&quot;;
+</span><span>              </span><span style="color:#d08770;">format </span><span>= &quot;</span><span style="color:#a3be8c;">vfat</span><span>&quot;;
+</span><span>              </span><span style="color:#d08770;">mountpoint </span><span>= &quot;</span><span style="color:#a3be8c;">/boot</span><span>&quot;;
+</span><span>            };
+</span><span>          };
+</span><span>          </span><span style="color:#d08770;">root </span><span>= {
+</span><span>            </span><span style="color:#d08770;">name </span><span>= &quot;</span><span style="color:#a3be8c;">root</span><span>&quot;;
+</span><span>            </span><span style="color:#d08770;">size </span><span>= &quot;</span><span style="color:#a3be8c;">100%</span><span>&quot;;
+</span><span>            </span><span style="color:#d08770;">content </span><span>= {
+</span><span>              </span><span style="color:#d08770;">type </span><span>= &quot;</span><span style="color:#a3be8c;">lvm_pv</span><span>&quot;;
+</span><span>              </span><span style="color:#d08770;">vg </span><span>= &quot;</span><span style="color:#a3be8c;">pool</span><span>&quot;;
+</span><span>            };
+</span><span>          };
+</span><span>        };
+</span><span>      };
+</span><span>    };
+</span><span>    </span><span style="color:#d08770;">lvm_vg </span><span>= {
+</span><span>      </span><span style="color:#d08770;">pool </span><span>= {
+</span><span>        </span><span style="color:#d08770;">type </span><span>= &quot;</span><span style="color:#a3be8c;">lvm_vg</span><span>&quot;;
+</span><span>        </span><span style="color:#d08770;">lvs </span><span>= {
+</span><span>          </span><span style="color:#d08770;">root </span><span>= {
+</span><span>            </span><span style="color:#d08770;">size </span><span>= &quot;</span><span style="color:#a3be8c;">100%FREE</span><span>&quot;;
+</span><span>            </span><span style="color:#d08770;">content </span><span>= {
+</span><span>              </span><span style="color:#d08770;">type </span><span>= &quot;</span><span style="color:#a3be8c;">filesystem</span><span>&quot;;
+</span><span>              </span><span style="color:#d08770;">format </span><span>= &quot;</span><span style="color:#a3be8c;">ext4</span><span>&quot;;
+</span><span>              </span><span style="color:#d08770;">mountpoint </span><span>= &quot;</span><span style="color:#a3be8c;">/</span><span>&quot;;
+</span><span>              </span><span style="color:#d08770;">mountOptions </span><span>= [
+</span><span>                &quot;</span><span style="color:#a3be8c;">defaults</span><span>&quot;
+</span><span>              ];
+</span><span>            };
+</span><span>          };
+</span><span>        };
+</span><span>      };
+</span><span>    };
+</span><span>  };
+</span><span>}
+</span></code></pre>
+<p>Now the configuration part.</p>
+<ul>
+<li><code>configuration.nix</code></li>
+</ul>
+<p>We’ll first import <code>qemu-guest</code> module since it’s a virtual machine.</p>
+<pre data-lang="nix" style="background-color:#2b303b;color:#c0c5ce;" class="language-nix "><code class="language-nix" data-lang="nix"><span style="color:#8fa1b3;">{ </span><span>modulesPath, config, lib, pkgs, ... </span><span style="color:#8fa1b3;">}</span><span>: {
+</span><span>  </span><span style="color:#d08770;">imports </span><span>= [
+</span><span>    (</span><span style="color:#bf616a;">modulesPath </span><span>+ &quot;</span><span style="color:#a3be8c;">/installer/scan/not-detected.nix</span><span>&quot;)
+</span><span>    (</span><span style="color:#bf616a;">modulesPath </span><span>+ &quot;</span><span style="color:#a3be8c;">/profiles/qemu-guest.nix</span><span>&quot;)
+</span><span>    </span><span style="color:#a3be8c;">./disk-config.nix
+</span><span>  ];
+</span><span>  </span><span style="color:#d08770;">system</span><span>.</span><span style="color:#d08770;">stateVersion </span><span>= &quot;</span><span style="color:#a3be8c;">24.05</span><span>&quot;;
+</span><span>}
+</span></code></pre>
+<p>I’ll be using <code>grub</code> as bootloader.</p>
+<pre data-lang="nix" style="background-color:#2b303b;color:#c0c5ce;" class="language-nix "><code class="language-nix" data-lang="nix"><span>{
+</span><span>  </span><span style="color:#d08770;">boot</span><span>.</span><span style="color:#d08770;">loader</span><span>.</span><span style="color:#d08770;">grub </span><span>= {
+</span><span>        </span><span style="color:#d08770;">efiSupport </span><span>= </span><span style="color:#d08770;">true</span><span>;
+</span><span>        </span><span style="color:#d08770;">efiInstallAsRemovable </span><span>= </span><span style="color:#d08770;">true</span><span>;
+</span><span>    };
+</span><span>}
+</span></code></pre>
+<p><code>Openssh</code> is necessary for us to be able to ssh into the new server.</p>
+<pre data-lang="nix" style="background-color:#2b303b;color:#c0c5ce;" class="language-nix "><code class="language-nix" data-lang="nix"><span>{
+</span><span>  </span><span style="color:#d08770;">services</span><span>.</span><span style="color:#d08770;">openssh</span><span>.</span><span style="color:#d08770;">enable </span><span>= </span><span style="color:#d08770;">true</span><span>;
+</span><span>  </span><span style="color:#d08770;">users</span><span>.</span><span style="color:#d08770;">users</span><span>.</span><span style="color:#d08770;">root</span><span>.</span><span style="color:#d08770;">openssh</span><span>.</span><span style="color:#d08770;">authorizedKeys</span><span>.</span><span style="color:#d08770;">keys </span><span>= [
+</span><span>    &quot;</span><span style="color:#a3be8c;">You&#39;re public ssh key</span><span>&quot; </span><span style="color:#65737e;">#</span><span style="font-weight:bold;color:#ebcb8b;">FIXME</span><span style="color:#65737e;">: Add your ssh public key
+</span><span>  ];
+</span></code></pre>
+<p>You can define aditional packages to install as follows.</p>
+<pre data-lang="nix" style="background-color:#2b303b;color:#c0c5ce;" class="language-nix "><code class="language-nix" data-lang="nix"><span>{
+</span><span style="color:#d08770;">environment</span><span>.</span><span style="color:#d08770;">systemPackages </span><span>= </span><span style="color:#96b5b4;">map </span><span style="color:#bf616a;">lib</span><span>.</span><span style="color:#bf616a;">lowPrio </span><span>[
+</span><span>    </span><span style="color:#bf616a;">pkgs</span><span>.</span><span style="color:#bf616a;">curl </span><span style="color:#65737e;"># </span><span style="font-weight:bold;color:#ebcb8b;">FIXME</span><span style="color:#65737e;">: define your more packages here
+</span><span>    </span><span style="color:#bf616a;">pkgs</span><span>.</span><span style="color:#bf616a;">gitMinimal
+</span><span>  ];
+</span><span>}
+</span></code></pre>
+<p>Now, our final <code>configuration.nix</code> should look like this.</p>
+<pre data-lang="nix" style="background-color:#2b303b;color:#c0c5ce;" class="language-nix "><code class="language-nix" data-lang="nix"><span style="color:#8fa1b3;">{ </span><span>modulesPath, config, lib, pkgs, ... </span><span style="color:#8fa1b3;">}</span><span>: {
+</span><span>  </span><span style="color:#d08770;">imports </span><span>= [
+</span><span>    (</span><span style="color:#bf616a;">modulesPath </span><span>+ &quot;</span><span style="color:#a3be8c;">/installer/scan/not-detected.nix</span><span>&quot;)
+</span><span>    (</span><span style="color:#bf616a;">modulesPath </span><span>+ &quot;</span><span style="color:#a3be8c;">/profiles/qemu-guest.nix</span><span>&quot;)
+</span><span>    </span><span style="color:#a3be8c;">./disk-config.nix
+</span><span>  ];
+</span><span>  </span><span style="color:#d08770;">boot</span><span>.</span><span style="color:#d08770;">loader</span><span>.</span><span style="color:#d08770;">grub </span><span>= {
+</span><span>    </span><span style="color:#d08770;">efiSupport </span><span>= </span><span style="color:#d08770;">true</span><span>;
+</span><span>    </span><span style="color:#d08770;">efiInstallAsRemovable </span><span>= </span><span style="color:#d08770;">true</span><span>;
+</span><span>  };
+</span><span>  </span><span style="color:#d08770;">services</span><span>.</span><span style="color:#d08770;">openssh</span><span>.</span><span style="color:#d08770;">enable </span><span>= </span><span style="color:#d08770;">true</span><span>;
+</span><span>
+</span><span>  </span><span style="color:#d08770;">environment</span><span>.</span><span style="color:#d08770;">systemPackages </span><span>= </span><span style="color:#96b5b4;">map </span><span style="color:#bf616a;">lib</span><span>.</span><span style="color:#bf616a;">lowPrio </span><span>[
+</span><span>    </span><span style="color:#bf616a;">pkgs</span><span>.</span><span style="color:#bf616a;">curl
+</span><span>    </span><span style="color:#bf616a;">pkgs</span><span>.</span><span style="color:#bf616a;">gitMinimal
+</span><span>  ];
+</span><span>
+</span><span>  </span><span style="color:#d08770;">users</span><span>.</span><span style="color:#d08770;">users</span><span>.</span><span style="color:#d08770;">root</span><span>.</span><span style="color:#d08770;">openssh</span><span>.</span><span style="color:#d08770;">authorizedKeys</span><span>.</span><span style="color:#d08770;">keys </span><span>= [
+</span><span>    &quot;</span><span style="color:#a3be8c;">You&#39;re public ssh key</span><span>&quot;
+</span><span>  ];
+</span><span>
+</span><span>  </span><span style="color:#d08770;">system</span><span>.</span><span style="color:#d08770;">stateVersion </span><span>= &quot;</span><span style="color:#a3be8c;">24.05</span><span>&quot;;
+</span><span>}
+</span></code></pre>
+<h2 id="install-the-os">Install the os</h2>
+<p>Now, we’ll have to run our flake to install nixos on the vps.</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span> </span><span style="color:#bf616a;">nix</span><span> run github:nix-community/nixos-anywhere -- --flake .#wolf root@&lt;server-ip&gt;
+</span></code></pre>
+<p>It’ll ask for the root password on installation.</p>
+<p><img src="https://nixthe.systems/docs/installing-nixos-on-vps/nix.png" alt="" />
+<img src="https://nixthe.systems/docs/installing-nixos-on-vps/final.png" alt="" /></p>
+<p>Congratulations!! The nixos has been installed successfully. You should be able to just edit the configuration and run</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">sudo</span><span> nixos-rebuild switch</span><span style="color:#bf616a;"> --flake</span><span> .#wolf
+</span></code></pre>
+<p>the other time on any changes.</p>
+<h2 id="aditional-tips">Aditional tips…</h2>
+<p>You can use <code>justfile</code> to make this script running easy</p>
+<pre data-lang="Makefile" style="background-color:#2b303b;color:#c0c5ce;" class="language-Makefile "><code class="language-Makefile" data-lang="Makefile"><span style="color:#bf616a;">set shell </span><span>:= </span><span style="color:#a3be8c;">[&quot;zsh&quot;, &quot;-c&quot;]
+</span><span>
+</span><span style="color:#8fa1b3;">_default</span><span>:
+</span><span>    </span><span style="color:#d08770;">@</span><span style="color:#bf616a;">just -l
+</span><span>
+</span><span style="color:#bf616a;">alias g </span><span>:= </span><span style="color:#a3be8c;">gens
+</span><span style="color:#bf616a;">alias c </span><span>:= </span><span style="color:#a3be8c;">clean
+</span><span style="color:#bf616a;">alias r </span><span>:= </span><span style="color:#a3be8c;">rebuild
+</span><span>
+</span><span style="color:#65737e;"># lists build generations
+</span><span style="color:#8fa1b3;">gens</span><span>:
+</span><span>    </span><span style="color:#d08770;">@</span><span style="color:#96b5b4;">echo </span><span>&quot;</span><span style="color:#a3be8c;">Listing build generations </span><span>&quot;
+</span><span>    </span><span style="color:#d08770;">@</span><span style="color:#bf616a;">nix-env --list-generations
+</span><span>
+</span><span style="color:#65737e;"># cleans up the nix garbage
+</span><span style="color:#8fa1b3;">clean</span><span>:
+</span><span>    </span><span style="color:#d08770;">@</span><span style="color:#96b5b4;">echo </span><span>&quot;</span><span style="color:#a3be8c;">Cleaning up unused Nix store items</span><span>&quot;
+</span><span>    </span><span style="color:#d08770;">@</span><span style="color:#bf616a;">sudo</span><span> nix-collect-garbage</span><span style="color:#bf616a;"> -d
+</span><span>
+</span><span style="color:#65737e;"># Builds the serer
+</span><span style="color:#8fa1b3;">rebuild</span><span>:
+</span><span>    </span><span style="color:#d08770;">@</span><span style="color:#96b5b4;">echo </span><span>&quot;</span><span style="color:#a3be8c;">Rebuilding server configuration</span><span>&quot;
+</span><span>    </span><span style="color:#d08770;">@</span><span style="color:#bf616a;">sudo</span><span> nixos-rebuild switch</span><span style="color:#bf616a;"> --flake</span><span> .#wolf
+</span></code></pre>
+<p>The recipe should look like this</p>
+<pre data-lang="bash" style="background-color:#2b303b;color:#c0c5ce;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#bf616a;">$</span><span> just
+</span><span style="color:#bf616a;">Available</span><span> recipes:
+</span><span>    </span><span style="color:#bf616a;">clean   </span><span style="color:#65737e;"># cleans up the nix garbage
+</span><span>    </span><span style="color:#bf616a;">c       </span><span style="color:#65737e;"># alias for `clean`
+</span><span>    </span><span style="color:#bf616a;">gens    </span><span style="color:#65737e;"># lists build generations
+</span><span>    </span><span style="color:#bf616a;">g       </span><span style="color:#65737e;"># alias for `gens`
+</span><span>    </span><span style="color:#bf616a;">rebuild </span><span style="color:#65737e;"># Builds the serer
+</span><span>    </span><span style="color:#bf616a;">r       </span><span style="color:#65737e;"># alias for `rebuild`
+</span></code></pre>
+<p>Now, rebuild the os with <code>just r(ebuild)</code></p>
+<p>Well, it’s this for now, I’ll see you in the next one!</p>
+<!--links-->
+
+
+	</div>
+	<footer id="site-footer">
+			<p>&copy; Nix The Systems, 2025</p>
+	<p id="latest-commit"><em>Last commit:</em> <span id="commit-message"></span></p>
+</footer>
+
+
+<!-- NOTE: Implement commit caching -->
+
+<script>
+async function fetchLatestCommit() {
+    const repo = 'nixthe.systems';
+    const user = 'pwnwriter';
+    const url = `https://api.github.com/repos/${user}/${repo}/commits?per_page=1`;
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const commits = await response.json();
+        const latestCommit = commits[0];
+
+        if (latestCommit) {
+            const commitMessage = latestCommit.commit.message;
+            const commitSha = latestCommit.sha;
+
+            const messageParts = commitMessage.split(' ');
+            let displayMessage = commitMessage;
+
+            if (messageParts.length > 4) {
+                displayMessage = messageParts.slice(0, 4).join(' ') + '...';
+            }
+
+            document.getElementById('commit-message').innerHTML = `<a href="https://github.com/${user}/${repo}/commit/${commitSha}" rel="noopener" target="_blank">${displayMessage}</a>`;
+        }
+    } catch (error) {
+        console.error('Error fetching the latest commit:', error);
+    }
+}
+
+fetchLatestCommit();
+</script>
+
+
+</body>
+</html>

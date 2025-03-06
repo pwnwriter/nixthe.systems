@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"  lang="en" >
+<head>
+	<!-- 2025-03-06 Thu 11:55 -->
+	<meta charset="UTF-8" />
+	<meta name="description" content="Nix The Systems: A place to find Nix, NixOS configurations and more" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="theme-color" content="#c6a0f6" />
+		<meta name="theme-color" content="#a5adcb" media="(prefers-color-scheme:dark)" />
+	<title>Nix The Systems</title>
+	<link rel="canonical" href="&#x2F;" /><link rel="icon" type="image/png" href="https://nixthe.systems/favicon.png" />
+
+<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="https://nixthe.systems/apple-touch-icon.png" />
+
+			<link rel="alternate" type="application/rss+xml" title="Nix The Systems" href="https://nixthe.systems/rss.xml" />
+			<link rel="alternate" type="application/atom+xml" title="Nix The Systems" href="https://nixthe.systems/atom.xml" /><style type="text/css">
+	:root {--accent-color: #c6a0f6;--contrast-color: #fff;}[data-theme="dark"] {
+			--accent-color: #a5adcb;
+		}
+
+		@media (prefers-color-scheme: dark) {
+			:root:not([data-theme="light"]) {
+				--accent-color: #a5adcb;
+			}
+		}</style>
+
+		<link type="text/css" rel="stylesheet" href="https://nixthe.systems/style.css" />
+
+<script type="text/javascript">
+	document.addEventListener("DOMContentLoaded", function () {
+		let blocks = document.querySelectorAll("pre[class^='language-']");
+
+		blocks.forEach((block) => {
+			if (navigator.clipboard) {
+				// Code block header title
+				let title = document.createElement("span");
+				let lang = block.getAttribute("data-lang");
+				title.innerHTML = lang;
+
+				// Copy button icon
+				let icon = document.createElement("i");
+				icon.classList.add("icon");
+
+				// Copy button
+				let button = document.createElement("button");
+				button.setAttribute("title", "Copy code")
+				button.appendChild(icon);
+
+				// Code block header
+				let header = document.createElement("div");
+				header.classList.add("header");
+				header.appendChild(button);
+				header.appendChild(title);
+
+				// Container that holds header and the code block itself
+				let container = document.createElement("div");
+				container.classList.add("pre-container");
+				container.appendChild(header);
+
+				// Move code block into the container
+				block.parentNode.insertBefore(container, block);
+				container.appendChild(block);
+
+				button.addEventListener("click", async () => {
+					await copyCode(block, header, button); // Pass the button here
+				});
+			}
+		});
+
+		async function copyCode(block, header, button) {
+			let code = block.querySelector("code");
+			let text = code.innerText;
+
+			await navigator.clipboard.writeText(text);
+
+			header.classList.add("active");
+			button.setAttribute("disabled", true);
+
+			header.addEventListener("animationend", () => {
+				header.classList.remove("active");
+				button.removeAttribute("disabled");
+			}, { once: true });
+		}
+	});
+</script>
+
+
+<script type="text/javascript">
+    function debounce(func, wait) {
+        var timeout;
+
+        return function () {
+            var context = this;
+            var args = arguments;
+            clearTimeout(timeout);
+
+            timeout = setTimeout(function () {
+                timeout = null;
+                func.apply(context, args);
+            }, wait);
+        };
+    }
+
+    // Taken from mdbook
+    // The strategy is as follows:
+    // First, assign a value to each word in the document:
+    //  Words that correspond to search terms (stemmer aware): 40
+    //  Normal words: 2
+    //  First word in a sentence: 8
+    // Then use a sliding window with a constant number of words and count the
+    // sum of the values of the words within the window. Then use the window that got the
+    // maximum sum. If there are multiple maximas, then get the last one.
+    // Enclose the terms in <b>.
+    function makeTeaser(body, terms) {
+        var TERM_WEIGHT = 40;
+        var NORMAL_WORD_WEIGHT = 2;
+        var FIRST_WORD_WEIGHT = 8;
+        var TEASER_MAX_WORDS = 30;
+
+        var stemmedTerms = terms.map(function (w) {
+            return elasticlunr.stemmer(w.toLowerCase());
+        });
+        var termFound = false;
+        var index = 0;
+        var weighted = []; // contains elements of ["word", weight, index_in_document]
+
+        // split in sentences, then words
+        var sentences = body.toLowerCase().split(". ");
+
+        for (var i in sentences) {
+            var words = sentences[i].split(" ");
+            var value = FIRST_WORD_WEIGHT;
+
+            for (var j in words) {
+                var word = words[j];
+
+                if (word.length > 0) {
+                    for (var k in stemmedTerms) {
+                        if (elasticlunr.stemmer(word).startsWith(stemmedTerms[k])) {
+                            value = TERM_WEIGHT;
+                            termFound = true;
+                        }
+                    }
+                    weighted.push([word, value, index]);
+                    value = NORMAL_WORD_WEIGHT;
+                }
+
+                index += word.length;
+                index += 1;  // ' ' or '.' if last word in sentence
+            }
+
+            index += 1;  // because we split at a two-char boundary '. '
+        }
+
+        if (weighted.length === 0) {
+            return body;
+        }
+
+        var windowWeights = [];
+        var windowSize = Math.min(weighted.length, TEASER_MAX_WORDS);
+        // We add a window with all the weights first
+        var curSum = 0;
+        for (var i = 0; i < windowSize; i++) {
+            curSum += weighted[i][1];
+        }
+        windowWeights.push(curSum);
+
+        for (var i = 0; i < weighted.length - windowSize; i++) {
+            curSum -= weighted[i][1];
+            curSum += weighted[i + windowSize][1];
+            windowWeights.push(curSum);
+        }
+
+        // If we didn't find the term, just pick the first window
+        var maxSumIndex = 0;
+        if (termFound) {
+            var maxFound = 0;
+            // backwards
+            for (var i = windowWeights.length - 1; i >= 0; i--) {
+                if (windowWeights[i] > maxFound) {
+                    maxFound = windowWeights[i];
+                    maxSumIndex = i;
+                }
+            }
+        }
+
+        var teaser = [];
+        var startIndex = weighted[maxSumIndex][2];
+        for (var i = maxSumIndex; i < maxSumIndex + windowSize; i++) {
+            var word = weighted[i];
+            if (startIndex < word[2]) {
+                // missing text from index to start of `word`
+                teaser.push(body.substring(startIndex, word[2]));
+                startIndex = word[2];
+            }
+
+            // add <strong> around search terms
+            if (word[1] === TERM_WEIGHT) {
+                teaser.push("<strong>");
+            }
+            startIndex = word[2] + word[0].length;
+            teaser.push(body.substring(word[2], startIndex));
+
+            if (word[1] === TERM_WEIGHT) {
+                teaser.push("</strong>");
+            }
+        }
+        teaser.push("…");
+        return teaser.join("");
+    }
+
+    function formatSearchResultItem(item, terms) {
+        return '<div class="item">'
+            + `<a href="${item.ref}">${item.doc.title}</a>`
+            + `<span>${makeTeaser(item.doc.body, terms)}</span>`
+            + '</div>';
+    }
+
+    function initSearch() {
+        var $searchInput = document.getElementById("search-bar");
+        var $searchResults = document.getElementById("search-results");
+        var MAX_ITEMS = 10;
+
+        var options = {
+            bool: "AND",
+            fields: {
+                title: { boost: 2 },
+                body: { boost: 1 },
+            }
+        };
+        var currentTerm = "";
+        var index;
+
+        var initIndex = async function () {
+            if (index === undefined) {
+                index = fetch("https://nixthe.systems/search_index.en.json")
+                    .then(
+                        async function (response) {
+                            return await elasticlunr.Index.load(await response.json());
+                        }
+                    );
+            }
+            let res = await index;
+            return res;
+        }
+
+        $searchInput.addEventListener("keyup", debounce(async function () {
+            var term = $searchInput.value.trim();
+            if (term === currentTerm) {
+                return;
+            }
+            $searchResults.style.display = term === "" ? "none" : "flex";
+            $searchResults.innerHTML = "";
+            currentTerm = term;
+            if (term === "") {
+                return;
+            }
+
+            var results = (await initIndex()).search(term, options);
+            if (results.length === 0) {
+                $searchResults.style.display = "none";
+                return;
+            }
+
+            for (var i = 0; i < Math.min(results.length, MAX_ITEMS); i++) {
+                $searchResults.innerHTML += formatSearchResultItem(results[i], term.split(" "));
+            }
+        }, 150));
+
+        window.addEventListener('click', function (e) {
+            if ($searchResults.style.display == "flex" && !$searchResults.contains(e.target)) {
+                $searchResults.style.display = "none";
+            }
+        });
+    }
+
+    function toggleSearch() {
+        var searchContainer = document.getElementById("search-container");
+        var searchBar = document.getElementById("search-bar");
+        searchContainer.classList.toggle("active");
+        searchBar.toggleAttribute("disabled");
+    }
+
+    if (document.readyState === "complete" ||
+        (document.readyState !== "loading" && !document.documentElement.doScroll)
+    ) {
+        initSearch();
+    } else {
+        document.addEventListener("DOMContentLoaded", initSearch);
+    }
+</script>
+
+			<script type="text/javascript"  src="https://nixthe.systems/elasticlunr.min.js"></script>
+			<script type="text/javascript"  src="https://nixthe.systems/theme-switcher.js"></script>
+			<script type="text/javascript"  src="https://nixthe.systems/details.js"></script>
+
+	<meta property="og:site_name" content="Nix The Systems" />
+	<meta property="og:title" content="Nix The Systems" />
+	<meta property="og:url" content="&#x2F;" />
+	<meta property="og:description" content="Nix The Systems: A place to find Nix, NixOS configurations and more" />
+	<meta property="og:image" content="https://nixthe.systems/card.png" />
+	<meta property="og:locale" content="en_US" />
+</head>
+
+<body>
+
+		<header id="site-nav">
+	<nav>
+		<a href="#main" id="main-content" tabindex="0">
+			Skip to Main Content
+		</a>
+		<ul>
+			<li id="home">
+				<a href="https://nixthe.systems">
+					<i class="icon"></i>Nix The Systems</a>
+			</li>
+			<div class="divider"></div>
+					<li>
+						<a href="https://nixthe.systems/docs/">Docs</a>
+					</li>
+					<li>
+						<a href="https://nixthe.systems/configurations/">Configurations</a>
+					</li>
+					<li>
+						<a href="https://nixthe.systems/about/">About</a>
+					</li>
+				<li id="search">
+					<button class="circle" onclick="toggleSearch()" title="Search">
+						<i class="icon"></i>
+					</button>
+				</li>
+				<li id="theme-switcher">
+					<details>
+						<summary class="circle" title="Theme">
+							<i class="icon"></i>
+						</summary>
+						<ul>
+							<li>
+								<button class="circle" id="theme-light" onclick="switchTheme('light')" title="Switch to Light Theme">
+									<i class="icon"></i>
+								</button>
+							</li>
+							<li>
+								<button class="circle" id="theme-dark" onclick="switchTheme('dark')" title="Switch to Dark Theme">
+									<i class="icon"></i>
+								</button>
+							</li>
+							<li>
+								<button class="circle" id="theme-system" onclick="switchTheme('system')" title="Use System Theme">
+									<i class="icon"></i>
+								</button>
+							</li>
+						</ul>
+					</details>
+				</li><li id="feed">
+					<details>
+						<summary class="circle" title="Feed">
+							<i class="icon"></i>
+						</summary>
+						<ul>
+								<li>
+									<a href="https://nixthe.systems/rss.xml" rel="">RSS</a>
+								</li>
+								<li>
+									<a href="https://nixthe.systems/atom.xml" rel="">Atom</a>
+								</li></ul>
+					</details>
+				</li>
+		</ul>
+	</nav>
+		<div id="search-container">
+			<label for="search-bar" class="hidden">Search</label>
+			<input id="search-bar" placeholder="Search for…" autocomplete="off" type="search" disabled>
+			<div id="search-results-container">
+				<div id="search-results"></div>
+			</div>
+		</div>
+</header>
+
+	<div id="main" class="container">
+		
+		<picture>
+	<source srcset="https://nixthe.systems/404.png" media="(prefers-reduced-motion: reduce)"></source>
+	<img id="not-found" class="pixels transparent no-hover" alt="404"src="https://nixthe.systems/404.gif">
+</picture>
+
+<h1>Page Not Found</h1>
+
+<p>The requested page could not be found.</p>
+
+<div class="dialog-buttons">
+	<button class="inline-button" onclick="window.history.go(-1)">Go Back</button>
+</div>
+
+	</div>
+	<footer id="site-footer">
+			<p>&copy; Nix The Systems, 2025</p>
+	<p id="latest-commit"><em>Last commit:</em> <span id="commit-message"></span></p>
+</footer>
+
+
+<!-- NOTE: Implement commit caching -->
+
+<script>
+async function fetchLatestCommit() {
+    const repo = 'nixthe.systems';
+    const user = 'pwnwriter';
+    const url = `https://api.github.com/repos/${user}/${repo}/commits?per_page=1`;
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const commits = await response.json();
+        const latestCommit = commits[0];
+
+        if (latestCommit) {
+            const commitMessage = latestCommit.commit.message;
+            const commitSha = latestCommit.sha;
+
+            const messageParts = commitMessage.split(' ');
+            let displayMessage = commitMessage;
+
+            if (messageParts.length > 4) {
+                displayMessage = messageParts.slice(0, 4).join(' ') + '...';
+            }
+
+            document.getElementById('commit-message').innerHTML = `<a href="https://github.com/${user}/${repo}/commit/${commitSha}" rel="noopener" target="_blank">${displayMessage}</a>`;
+        }
+    } catch (error) {
+        console.error('Error fetching the latest commit:', error);
+    }
+}
+
+fetchLatestCommit();
+</script>
+
+
+</body>
+</html>
