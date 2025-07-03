@@ -1,6 +1,4 @@
 {
-  description = "Nix The Systems";
-
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   };
@@ -20,10 +18,16 @@
     {
       devShells = forAllSystems (pkgs: {
         default = pkgs.mkShell {
+
           packages = with pkgs; [
-            zola
+            bun
+            typescript-language-server
+            astro-language-server
           ];
 
+          shellHook = ''
+            echo "DevShell🚀: initiated"
+          '';
         };
       });
     };

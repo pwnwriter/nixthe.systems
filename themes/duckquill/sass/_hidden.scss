@@ -1,9 +1,0 @@
-.hidden:not(:focus):not(:active) {
-	clip: rect(0 0 0 0);
-	position: absolute;
-	clip-path: inset(100%);
-	width: 1px;
-	height: 1px;
-	overflow: hidden;
-	white-space: nowrap;
-}

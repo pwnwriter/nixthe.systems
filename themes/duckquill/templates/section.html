@@ -1,8 +1,0 @@
-{% extends "base.html" %}
-
-{% block content %}
-<h1>{{ section.title }}</h1>
-{%- include "partials/statements.html" -%}
-{%- include "partials/toc.html" -%}
-{{ section.content | safe }}
-{% endblock content %}

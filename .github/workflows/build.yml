@@ -24,7 +24,7 @@ jobs:
 
       - name: Build the website
         run: |
-          nix develop --command zola build
+          nix develop --command bun install && bun run build
 
       - name: Deploy build to gh-pages branch
         uses: crazy-max/ghaction-github-pages@v4
